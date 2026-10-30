@@ -16,12 +16,30 @@
   };
 
   /* ---------------- theme ---------------- */
-  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-  $("#theme-btn").addEventListener("click", () => {
-    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem("theme", next); } catch (e) {}
+  const root = document.documentElement, themeBtn = $("#theme-btn");
+  const syncSwitch = () => themeBtn.setAttribute("aria-checked", root.dataset.theme === "light");
+  syncSwitch();
+  const setTheme = (next, x, y) => {
+    const apply = () => { root.dataset.theme = next; syncSwitch(); };
+    if (reduce || !document.startViewTransition) { apply(); return; }
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(apply).ready.then(() => {
+      root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: "cubic-bezier(.22,1,.36,1)", pseudoElement: "::view-transition-new(root)" });
+    }).catch(() => {});
+  };
+  themeBtn.addEventListener("click", (e) => {
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    const b = themeBtn.getBoundingClientRect();
+    setTheme(next, e.clientX || b.left + b.width / 2, e.clientY || b.top + b.height / 2);
+    try { localStorage.setItem("theme", next); } catch (err) {}
     toast(next === "light" ? "☀ Light mode" : "☾ Dark mode");
+  });
+  // follow the system setting until the visitor picks a theme themselves
+  matchMedia("(prefers-color-scheme: light)").addEventListener?.("change", (e) => {
+    let saved = null;
+    try { saved = localStorage.getItem("theme"); } catch (err) {}
+    if (!saved) setTheme(e.matches ? "light" : "dark", innerWidth - 60, 34);
   });
 
   /* ---------------- build DOM from data ---------------- */
@@ -568,7 +586,7 @@
     { t: "Projects gallery", k: "jump", i: "▦", run: () => go("#projects") },
     { t: "Languages", k: "jump", i: "◔", run: () => go("#languages") },
     { t: "Timeline", k: "jump", i: "⌇", run: () => go("#timeline") },
-    { t: "Toggle light / dark theme", k: "action", i: "◐", run: () => $("#theme-btn").click() },
+    { t: "Toggle light / dark mode", k: "action", i: "☀", run: () => $("#theme-btn").click() },
     { t: "Matrix mode", k: "action", i: "01", run: matrix },
     { t: "Back to top", k: "action", i: "↑", run: () => go("#top") },
     { t: "Open GitHub profile", k: "link", i: "↗", run: () => open(`https://github.com/${S.user}`, "_blank", "noopener") }
@@ -690,7 +708,7 @@
     const render = () => {
       const digits = [...enc.encode(nlIn.value)].map((b) => String(b).padStart(3, "0")).join("");
       nlOut.innerHTML = [...digits.slice(0, 600)].map((d, i) => `<span style="animation-delay:${Math.min(i, 120) * 6}ms">${d}</span>`).join("") + (digits.length > 600 ? "…" : "");
-      nlOut.dataset.count = `${digits.length.toLocaleString()} digits`;
+      nlOut.dataset.total = `${digits.length.toLocaleString()} digits`;
     };
     nlIn.addEventListener("input", render); render();
   }
