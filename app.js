@@ -90,6 +90,44 @@
 
   // hands-on demos for a few chapters
   const DEMOS = {
+    freemessenger: `<div class="demo fm-demo">
+        <div class="fm-grid">
+          <div class="fm-side"><b>@alice</b><input id="fm-msg" type="text" value="meet at 6?" maxlength="120" spellcheck="false"><button class="btn primary demo-btn" id="fm-send"><span>Encrypt &amp; send</span></button></div>
+          <div class="fm-wire"><span>relay sees</span><code id="fm-cipher">…</code></div>
+          <div class="fm-side"><b>@bob</b><p id="fm-plain" class="fm-plain">…</p></div>
+        </div>
+        <div class="fm-code"><span>Shared key fingerprint</span><b id="fm-fp">generating keys…</b></div>
+        <p class="demo-note">Real Web Crypto running in your browser: two ECDH P-256 key pairs, a shared AES-256-GCM key, and live encryption. The 12-digit code here is just a fingerprint for show, not FreeMessenger's exact formula.</p>
+      </div>`,
+    ocmp: `<div class="demo oc-demo">
+        <div class="oc-pick"><label>CPU<select id="oc-cpu"></select></label><label>GPU<select id="oc-gpu"></select></label></div>
+        <div id="oc-out" class="oc-out"></div>
+        <p class="demo-note">Statuses come from the README's support tables. The app itself detects your real hardware.</p>
+      </div>`,
+    wiithemer: `<div class="demo wt-demo">
+        <div class="oc-pick">
+          <label>Theme<select id="wt-theme"><option>Black Pirate</option><option>Matrix</option><option>Matrix Reloaded</option><option>Muse</option><option value="other">Any other theme</option></select></label>
+          <label>Spin<select id="wt-spin"><option>nospin</option><option>spin</option><option>fastspin</option><option>transchan</option></select></label>
+          <label>Spin first<select id="wt-first"><option>auto</option><option>yes</option><option>no</option></select></label>
+        </div>
+        <div class="wt-mode" id="wt-mode"></div>
+        <pre class="cf-code" id="wt-cmds"></pre>
+        <p class="demo-note">The two command lists are WiiThemer's defaults from the README. {appid} and {output} are filled in by the app from your version, region and file name template.</p>
+      </div>`,
+    apivis: `<div class="demo av-demo">
+        <div class="av-bar"><span class="av-get">GET</span><code>https://api.example.com/v1/projects</code><span class="av-ok">200 OK</span></div>
+        <div class="av-grid"><pre class="av-json" id="av-json"></pre>
+          <div><label class="demo-label" for="av-path">JSON path</label><input id="av-path" type="text" value="$.data.items[0].name" spellcheck="false">
+          <div class="av-chips">${["$.data.items[0].name", "$.data.items[-1].lang", "$.data.items[*].name", "$.data.total"].map((x) => `<button data-path="${x}">${x}</button>`).join("")}</div>
+          <pre class="av-res" id="av-res"></pre></div></div>
+        <p class="demo-note">A sample response. The path filter supports the same subset APIvis does: $.a.b, [0], [-1] and [*].</p>
+      </div>`,
+    hearth: `<div class="demo ht-demo">
+        <div class="ht-dev"><span class="ht-ico">⌨</span><div><b>Office Mac</b><span>paired via RustDesk</span></div><label class="ht-sw"><input type="checkbox" id="ht-ai"><i></i><span>Allow AI control</span></label></div>
+        <div class="ht-btns"><button data-ht="view">“Hey Hearth, show me the office Mac”</button><button data-ht="click">“Hey Hearth, click the send button”</button></div>
+        <pre class="cf-code ht-log" id="ht-log"></pre>
+        <p class="demo-note">Simulates the README's permission model: view-only by default, AI control opt-in per device, every session logged.</p>
+      </div>`,
     crossfire: `<div class="demo cf-demo">
         <div class="demo-head"><span>main.cpp</span><button class="btn primary demo-btn" data-cf><span>Convert ⇄</span></button></div>
         <pre class="cf-code"></pre>
@@ -695,6 +733,136 @@
     ["dragenter", "dragover"].forEach((t) => daDrop.addEventListener(t, (e) => { e.preventDefault(); daDrop.classList.add("over"); }));
     ["dragleave", "drop"].forEach((t) => daDrop.addEventListener(t, () => daDrop.classList.remove("over")));
     daDrop.addEventListener("drop", (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) run(f); });
+  }
+
+
+  // FreeMessenger: real ECDH + AES-GCM between two in-page users
+  if ($("#fm-send") && crypto.subtle) (async () => {
+    const gen = () => crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, false, ["deriveKey", "deriveBits"]);
+    const [a, b] = await Promise.all([gen(), gen()]);
+    const derive = (priv, pub) => crypto.subtle.deriveKey({ name: "ECDH", public: pub }, priv, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const [ka, kb] = await Promise.all([derive(a.privateKey, b.publicKey), derive(b.privateKey, a.publicKey)]);
+    const fingerprint = async (priv, pub) => {
+      const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: pub }, priv, 256);
+      const h = new Uint8Array(await crypto.subtle.digest("SHA-256", bits));
+      return [...h.slice(0, 6)].map((x) => String(x % 100).padStart(2, "0")).join("").replace(/(\d{4})(?=\d)/g, "$1 ");
+    };
+    const [fa, fb] = await Promise.all([fingerprint(a.privateKey, b.publicKey), fingerprint(b.privateKey, a.publicKey)]);
+    $("#fm-fp").textContent = fa === fb ? `${fa}  ✓ alice and bob match` : `alice ${fa} ≠ bob ${fb}`;
+    const send = async () => {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, ka, new TextEncoder().encode($("#fm-msg").value)));
+      const hex = [...ct].map((x) => x.toString(16).padStart(2, "0")).join("");
+      const el = $("#fm-cipher"); el.textContent = ""; el.classList.remove("fly"); void el.offsetWidth; el.classList.add("fly");
+      el.textContent = hex;
+      const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, kb, ct);
+      setTimeout(() => { const p = $("#fm-plain"); p.textContent = new TextDecoder().decode(pt); p.animate([{ opacity: 0, transform: "translateX(-20px)" }, { opacity: 1, transform: "none" }], { duration: 500, easing: "ease-out" }); }, reduce ? 0 : 700);
+    };
+    $("#fm-send").addEventListener("click", send);
+    $("#fm-msg").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+    send();
+  })().catch(() => { $("#fm-fp").textContent = "Web Crypto unavailable in this browser"; });
+
+  // OpenCore Modernity Patcher: support lookup from the README tables
+  const OC_CPU = [
+    ["Intel Haswell → Comet Lake (4th–10th gen)", "ok", "Desktop and laptop supported."],
+    ["Intel Rocket Lake (11th gen desktop)", "dgpu", "Needs a dGPU; iGPU unsupported. CPU spoofed as Comet Lake."],
+    ["Intel Alder / Raptor / Arrow Lake (12th–15th)", "dgpu", "Needs a dGPU. Spoofed as Comet Lake with ProvideCurrentCpuInfo and CpuTopologyRebuild. Disabling E-cores helps."],
+    ["Intel Ice Lake laptop", "ok", "Iris Plus iGPU supported."],
+    ["Intel HEDT (Haswell-E → Cascade Lake-X)", "dgpu", "Needs a dGPU. iMacPro1,1 / MacPro7,1."],
+    ["Intel Ivy Bridge or older", "no", "Too old for any targeted macOS."],
+    ["AMD Ryzen / Threadripper (Zen → Zen 5)", "dgpu", "Needs a supported dGPU. AMD_Vanilla patches with your core count."],
+    ["AMD FX / Athlon (15h/16h)", "warn", "No AVX2. Ventura+ needs CryptexFixup, and some apps won't run."]
+  ];
+  const OC_GPU = [
+    ["AMD Polaris (RX 460–590) / Vega", "ok", "High Sierra → Tahoe."],
+    ["AMD Navi 10/14/21/23 (RX 5000, 6600, 6800/6900)", "ok", "Catalina/Big Sur/Monterey → Tahoe, agdpmod=pikera added automatically."],
+    ["AMD Navi 22 (RX 6700/6750)", "ok", "Monterey 12.1 → Tahoe."],
+    ["AMD Navi 24, RDNA 3 (RX 7000), RDNA 4 (RX 9000)", "no", "No drivers; disabled automatically."],
+    ["NVIDIA Kepler (GTX 600/700)", "warn", "Up to Big Sur natively; Monterey+ needs root patching from macOS."],
+    ["NVIDIA Maxwell / Pascal (GTX 900/1000)", "warn", "High Sierra only (Web Drivers)."],
+    ["NVIDIA Turing and newer (GTX 16, RTX 20–50)", "no", "No drivers; disabled automatically."],
+    ["Intel iGPU only (Haswell → Comet Lake, Ice Lake)", "ok", "Framebuffer set automatically."]
+  ];
+  const ocCpu = $("#oc-cpu"), ocGpu = $("#oc-gpu");
+  if (ocCpu) {
+    ocCpu.innerHTML = OC_CPU.map((c, i) => `<option value="${i}">${esc(c[0])}</option>`).join("");
+    ocGpu.innerHTML = OC_GPU.map((g, i) => `<option value="${i}">${esc(g[0])}</option>`).join("");
+    ocGpu.value = "0";
+    const label = { ok: "✅ Supported", dgpu: "✅ With a dGPU", warn: "⚠️ Limited", no: "❌ Not supported" };
+    const show = () => {
+      const c = OC_CPU[ocCpu.value], g = OC_GPU[ocGpu.value];
+      const igpuOnly = +ocGpu.value === OC_GPU.length - 1;
+      let verdict = c[1] === "no" || g[1] === "no" ? "no" : c[1] === "dgpu" && igpuOnly ? "no" : c[1] === "warn" || g[1] === "warn" ? "warn" : "ok";
+      const why = c[1] === "dgpu" && igpuOnly ? "This CPU needs a supported dedicated GPU." : g[1] === "no" ? "With no usable GPU left, the build stops with a clear message." : "";
+      $("#oc-out").innerHTML = `<div class="oc-row oc-${c[1]}"><span>CPU</span><b>${label[c[1]]}</b><p>${esc(c[2])}</p></div>
+        <div class="oc-row oc-${g[1]}"><span>GPU</span><b>${label[g[1]]}</b><p>${esc(g[2])}</p></div>
+        <div class="oc-verdict oc-${verdict}">${verdict === "no" ? "Won't build a working EFI" : verdict === "warn" ? "Works, with caveats" : "Looks good to build"}${why ? `<small>${esc(why)}</small>` : ""}</div>`;
+    };
+    ocCpu.addEventListener("change", show); ocGpu.addEventListener("change", show); show();
+  }
+
+  // WiiThemer: which pipeline runs
+  const WT = {
+    normal: ["{themewii} {appid} {key}", "{themewii} {theme} {appid} 000000{appid}.app {key}", "{themewii} {spin} {appid}.app {output} {key}"],
+    run_first: ["{themewii} {appid} {key}", "{themewii} {spin} {appid} 000000{appid}.app {key}", "{themewii} {theme} {appid}.app {output} {key}"]
+  };
+  const wtT = $("#wt-theme");
+  if (wtT) {
+    const show = () => {
+      const theme = wtT.value, spin = $("#wt-spin").value, mode = $("#wt-first").value;
+      const first = mode === "yes" || (mode === "auto" && theme !== "other");
+      const file = theme === "other" ? "your_theme.mym" : theme.toLowerCase().replace(/ /g, "_") + ".mym";
+      $("#wt-mode").innerHTML = `Pipeline: <b>${first ? "run_first" : "normal"}</b> ${mode === "auto" ? `· auto rule says ${theme === "other" ? "this theme applies the spin after" : `${esc(theme)} applies the spin first`}` : "· forced"}`;
+      $("#wt-cmds").innerHTML = WT[first ? "run_first" : "normal"].map((l, i) =>
+        `<span class="new" style="animation-delay:${i * 0.1}s">${esc(l.replace("{theme}", file).replace("{spin}", spin + ".mym"))}</span>`).join("\n");
+      $$("#wt-cmds span").forEach((x) => x.classList.add("wt-in"));
+    };
+    ["#wt-theme", "#wt-spin", "#wt-first"].forEach((q) => $(q).addEventListener("change", show)); show();
+  }
+
+  // APIvis: JSON path subset
+  const AV = { data: { total: 3, items: [{ name: "crossfire", lang: "Rust", stars: 0 }, { name: "numberlock", lang: "Rust", stars: 0 }, { name: "apivis", lang: "Swift", stars: 0 }] } };
+  const avPath = $("#av-path");
+  if (avPath) {
+    $("#av-json").textContent = JSON.stringify(AV, null, 2);
+    const query = (path) => {
+      if (!/^\$/.test(path)) throw new Error("Paths start with $");
+      const toks = path.slice(1).match(/\.[A-Za-z_][\w-]*|\[-?\d+\]|\[\*\]/g) || [];
+      if (toks.join("") !== path.slice(1)) throw new Error("Only $.a.b, [0], [-1] and [*] are supported");
+      let cur = [AV];
+      for (const t of toks) {
+        cur = cur.flatMap((v) => {
+          if (t === "[*]") return Array.isArray(v) ? v : [];
+          if (t[0] === "[") { const n = +t.slice(1, -1); return Array.isArray(v) ? [v[n < 0 ? v.length + n : n]] : []; }
+          return v && typeof v === "object" && t.slice(1) in v ? [v[t.slice(1)]] : [];
+        }).filter((v) => v !== undefined);
+      }
+      return toks.includes("[*]") ? cur : cur[0];
+    };
+    const run = () => {
+      const out = $("#av-res");
+      try { const r = query(avPath.value.trim()); out.className = "av-res ok"; out.textContent = r === undefined ? "no match" : JSON.stringify(r, null, 2); }
+      catch (e) { out.className = "av-res err"; out.textContent = e.message; }
+    };
+    avPath.addEventListener("input", run);
+    $$(".av-chips button").forEach((b) => b.addEventListener("click", () => { avPath.value = b.dataset.path; run(); }));
+    run();
+  }
+
+  // HearthOS: permission model
+  const htLog = $("#ht-log");
+  if (htLog) {
+    const lines = [];
+    const log = (l, cls) => { lines.push(`<span class="${cls}">${esc(l)}</span>`); htLog.innerHTML = lines.slice(-6).join("\n"); };
+    log("# remote_sessions log", "c");
+    $$("[data-ht]").forEach((b) => b.addEventListener("click", () => {
+      const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      if (b.dataset.ht === "view") log(`${t}  voice  view   office-mac  → 200 live view on nearest TV`, "new");
+      else if ($("#ht-ai").checked) log(`${t}  voice  click  office-mac  → 200 click sent (input logged)`, "new");
+      else log(`${t}  voice  click  office-mac  → 403 AI control not allowed`, "bad");
+    }));
+    $("#ht-ai").addEventListener("change", (e) => log(`# AI control ${e.target.checked ? "granted" : "revoked"} for office-mac`, "c"));
   }
 
   /* ---------------- round three ---------------- */
