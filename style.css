@@ -463,3 +463,36 @@ body.matrix .glitch { background: linear-gradient(120deg, #22ff88, #00ffcc); -we
 .pcard::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent); transform: skewX(-18deg); }
 .pcard:hover::after { animation: sweep .9s var(--ease); }
 @keyframes sweep { to { left: 130%; } }
+
+/* ---------- round four: demos ---------- */
+.demo { border: 1px solid var(--line); border-radius: 20px; padding: 20px; background: var(--card); position: relative; overflow: hidden; }
+.demo::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: conic-gradient(from var(--ang, 0deg), transparent 70%, var(--accent), transparent); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: ang 5s linear infinite; pointer-events: none; }
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes ang { to { --ang: 360deg; } }
+.demo-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.demo-btn { padding: 9px 18px; font-size: .85rem; }
+.demo-btn:disabled { opacity: .6; }
+.demo-note { margin: 12px 0 0; font-size: .78rem; color: var(--muted); }
+.demo-label { display: block; font-family: var(--mono); font-size: .78rem; color: var(--muted); margin-bottom: 8px; }
+.cf-code { margin: 0; padding: 16px; border-radius: 12px; background: #0b0a12; color: #e6e1f7; font-family: var(--mono); font-size: clamp(.68rem, 1.3vw, .82rem); line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
+.cf-code span { display: inline; color: #ff8b8b; transition: color .4s; }
+.cf-code span.new { color: #7dffb2; }
+#nl-in { width: 100%; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; outline: none; transition: border-color .3s; }
+#nl-in:focus { border-color: var(--accent); }
+.nl-out { position: relative; margin-top: 12px; padding: 14px; border-radius: 12px; background: #0b0a12; color: var(--accent); font-family: var(--mono); font-size: .82rem; line-height: 1.5; word-break: break-all; min-height: 4em; max-height: 11em; overflow: hidden; }
+.nl-out::after { content: attr(data-count); position: absolute; right: 10px; bottom: 6px; font-size: .7rem; color: #8f8aa3; background: #0b0a12; padding-left: 6px; }
+.nl-out span { display: inline-block; animation: digitIn .5s var(--ease) both; }
+@keyframes digitIn { from { opacity: 0; transform: translateY(-8px) scale(1.6); color: #fff; } }
+.da-drop { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 28px 16px; border: 2px dashed var(--line); border-radius: 14px; cursor: pointer; transition: border-color .3s, background .3s, transform .3s var(--ease); }
+.da-drop:hover, .da-drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.da-drop.over { transform: scale(1.02); }
+.da-drop span { color: var(--muted); font-size: .85rem; }
+.da-out:not(:empty) { margin-top: 14px; }
+.da-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: .88rem; animation: panelIn .5s var(--ease) both; }
+.da-row:nth-child(2) { animation-delay: .06s; } .da-row:nth-child(3) { animation-delay: .12s; } .da-row:nth-child(4) { animation-delay: .18s; } .da-row:nth-child(5) { animation-delay: .24s; } .da-row:nth-child(6) { animation-delay: .3s; }
+.da-row span { color: var(--muted); font-family: var(--mono); font-size: .75rem; }
+.da-row b { font-weight: 500; word-break: break-all; }
+.da-row .mono { font-family: var(--mono); font-size: .76rem; }
+.ent { display: inline-block; vertical-align: middle; width: 90px; height: 6px; margin-left: 8px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.ent i { display: block; height: 100%; background: var(--accent); }
+@media (max-width: 600px) { .da-row { grid-template-columns: 1fr; gap: 2px; } }

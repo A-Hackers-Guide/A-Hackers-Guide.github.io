@@ -87,6 +87,26 @@
     return `<div class="lbar">${ent.map(([k, v]) => `<i data-w="${((v / tot) * 100).toFixed(2)}" style="background:${LANG_COLORS[k] || "#888"}" title="${esc(k)}"></i>`).join("")}</div>
       <div class="lkeys">${ent.map(([k, v]) => `<span style="--k:${LANG_COLORS[k] || "#888"}">${esc(k)} ${((v / tot) * 100).toFixed(1)}%</span>`).join("")}</div>`;
   };
+
+  // hands-on demos for a few chapters
+  const DEMOS = {
+    crossfire: `<div class="demo cf-demo">
+        <div class="demo-head"><span>main.cpp</span><button class="btn primary demo-btn" data-cf><span>Convert ⇄</span></button></div>
+        <pre class="cf-code"></pre>
+        <p class="demo-note">Illustration of the rule-based rewrites the README lists. Real Crossfire output depends on your project.</p>
+      </div>`,
+    numberlock: `<div class="demo nl-demo">
+        <label for="nl-in" class="demo-label">Type anything</label>
+        <textarea id="nl-in" rows="2" spellcheck="false">Hello from A Hacker's Guide</textarea>
+        <div class="nl-out" id="nl-out" aria-live="polite"></div>
+        <p class="demo-note">Toy illustration only: plain UTF-8 bytes as digits. The real NumberLock compresses and encrypts first, with a password.</p>
+      </div>`,
+    archaeologist: `<div class="demo da-demo">
+        <label class="da-drop" id="da-drop"><input type="file" id="da-file" hidden><b>Drop any file here</b><span>or click to choose one. It's read in your browser and never uploaded.</span></label>
+        <div class="da-out" id="da-out"></div>
+        <p class="demo-note">A tiny in-browser sample of the kind of report the real CLI makes.</p>
+      </div>`
+  };
   $("#chapters").innerHTML = S.repos.map((r, i) => `
     <section class="chapter" id="${r.id}" style="--accent:${r.accent}" data-section="${esc(r.name)}">
       <div class="ch-banner" aria-hidden="true">
@@ -112,6 +132,7 @@
           <div><h3>How it works</h3>
             <ol class="steps"><span class="fill"></span>${r.pipeline.map(([b, p], j) => `<li data-n="${pad(j + 1)}"><b>${esc(b)}</b><p>${esc(p)}</p></li>`).join("")}</ol>
           </div>
+          ${DEMOS[r.id] ? `<div class="reveal"><h3>Play with it</h3>${DEMOS[r.id]}</div>` : ""}
           <div><h3>Features</h3>
             <div class="feat-grid stagger">${r.features.map(([b, p]) => `<div class="feat"><b>${esc(b)}</b><p>${esc(p)}</p></div>`).join("")}</div>
           </div>
@@ -583,7 +604,7 @@
   let kpos = 0;
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPal(!pal.classList.contains("open")); return; }
-    if (e.key === "/" && !pal.classList.contains("open") && document.activeElement.tagName !== "INPUT") { e.preventDefault(); setPal(true); return; }
+    if (e.key === "/" && !pal.classList.contains("open") && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); setPal(true); return; }
     if (e.key === "Escape") { setPal(false); closeModal(); setMenu(false); }
     kpos = e.key === konami[kpos] ? kpos + 1 : e.key === konami[0] ? 1 : 0;
     if (kpos === konami.length) { kpos = 0; matrix(); }
@@ -594,6 +615,87 @@
     toast(document.body.classList.contains("matrix") ? "Wake up, Neo… matrix mode on" : "Matrix mode off");
   }
 
+
+
+  /* ---------------- demo logic ---------------- */
+  const CF = [
+    ["#include <windows.h>", '#include "crossfire/cf_platform.h"'],
+    ["__declspec(align(16)) struct Vec4 { float x, y, z, w; };", "struct alignas(16) Vec4 { float x, y, z, w; };"],
+    ["LARGE_INTEGER t; QueryPerformanceCounter(&t);", "auto t = std::chrono::steady_clock::now();"],
+    ["Sleep(16);", "std::this_thread::sleep_for(std::chrono::milliseconds(16));"],
+    ['FILE* f = fopen("assets\\\\level1.dat", "rb");', 'FILE* f = fopen("assets/level1.dat", "rb");']
+  ];
+  const cfPre = $(".cf-code");
+  if (cfPre) {
+    let state = 0;
+    const draw = (rows, mark) => (cfPre.innerHTML = rows.map((l, i) => `<span class="${mark && mark[i] ? "new" : ""}">${esc(l)}</span>`).join("\n"));
+    draw(CF.map((r) => r[0]));
+    $("[data-cf]").addEventListener("click", (e) => {
+      const btn = e.currentTarget; btn.disabled = true;
+      const from = state ? 1 : 0, to = 1 - from, rows = CF.map((r) => r[from]), mark = [];
+      CF.forEach((pair, i) => setTimeout(() => {
+        const target = pair[to]; let f = 0;
+        const step = () => {
+          rows[i] = [...target].map((c, j) => (j < f ? c : c === " " ? " " : glyphs[(Math.random() * glyphs.length) | 0])).join("");
+          mark[i] = to === 1; draw(rows, mark);
+          if ((f += 2) <= target.length + 1) requestAnimationFrame(step); else { rows[i] = target; draw(rows, mark); }
+        };
+        reduce ? ((rows[i] = target), (mark[i] = to === 1), draw(rows, mark)) : step();
+      }, reduce ? 0 : i * 260));
+      setTimeout(() => { state = to; btn.disabled = false; $("span", btn).textContent = to ? "Undo ⇄" : "Convert ⇄"; }, reduce ? 0 : CF.length * 260 + 600);
+    });
+  }
+
+  const nlIn = $("#nl-in"), nlOut = $("#nl-out");
+  if (nlIn) {
+    const enc = new TextEncoder();
+    const render = () => {
+      const digits = [...enc.encode(nlIn.value)].map((b) => String(b).padStart(3, "0")).join("");
+      nlOut.innerHTML = [...digits.slice(0, 600)].map((d, i) => `<span style="animation-delay:${Math.min(i, 120) * 6}ms">${d}</span>`).join("") + (digits.length > 600 ? "…" : "");
+      nlOut.dataset.count = `${digits.length.toLocaleString()} digits`;
+    };
+    nlIn.addEventListener("input", render); render();
+  }
+
+  const daFile = $("#da-file"), daDrop = $("#da-drop"), daOut = $("#da-out");
+  if (daFile) {
+    const SIGS = [
+      [[0x89, 0x50, 0x4e, 0x47], "PNG image"], [[0xff, 0xd8, 0xff], "JPEG image"], [[0x47, 0x49, 0x46, 0x38], "GIF image"],
+      [[0x25, 0x50, 0x44, 0x46], "PDF document"], [[0x50, 0x4b, 0x03, 0x04], "ZIP archive (or docx/xlsx/jar/apk)"],
+      [[0x1f, 0x8b], "GZIP archive"], [[0x42, 0x5a, 0x68], "BZIP2 archive"], [[0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00], "XZ archive"],
+      [[0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c], "7z archive"], [[0x52, 0x61, 0x72, 0x21], "RAR archive"],
+      [[0x7f, 0x45, 0x4c, 0x46], "ELF executable"], [[0x4d, 0x5a], "PE / Windows executable"],
+      [[0xcf, 0xfa, 0xed, 0xfe], "Mach-O executable (64-bit)"], [[0xca, 0xfe, 0xba, 0xbe], "Mach-O universal binary (or Java class)"],
+      [[0x53, 0x51, 0x4c, 0x69, 0x74, 0x65], "SQLite database"], [[0x49, 0x44, 0x33], "MP3 audio (ID3)"],
+      [[0x52, 0x49, 0x46, 0x46], "RIFF container (WAV/AVI/WebP)"], [[0x4f, 0x67, 0x67, 0x53], "Ogg media"], [[0x66, 0x4c, 0x61, 0x43], "FLAC audio"]
+    ];
+    const run = async (file) => {
+      daOut.innerHTML = `<p class="muted">Reading ${esc(file.name)}…</p>`;
+      const head = new Uint8Array(await file.slice(0, 65536).arrayBuffer());
+      const sig = SIGS.find(([m]) => m.every((b, i) => head[i] === b));
+      const counts = new Array(256).fill(0); head.forEach((b) => counts[b]++);
+      const entropy = counts.reduce((e, c) => (c ? e - (c / head.length) * Math.log2(c / head.length) : e), 0);
+      const printable = head.filter((b) => (b >= 32 && b < 127) || b === 9 || b === 10 || b === 13).length / (head.length || 1);
+      let hash = "file over 64 MB, skipped";
+      if (file.size <= 67108864 && crypto.subtle) {
+        const h = new Uint8Array(await crypto.subtle.digest("SHA-256", await file.arrayBuffer()));
+        hash = [...h].map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+      const hex = [...head.slice(0, 64)].map((b) => b.toString(16).padStart(2, "0")).join(" ");
+      const guess = sig ? sig[1] : printable > 0.95 ? "Text" : entropy > 7.5 ? "Unknown, high entropy (compressed or encrypted?)" : "Unknown binary";
+      daOut.innerHTML = `
+        <div class="da-row"><span>File</span><b>${esc(file.name)} · ${file.size.toLocaleString()} bytes</b></div>
+        <div class="da-row"><span>Signature</span><b>${esc(guess)}</b></div>
+        <div class="da-row"><span>Entropy</span><b>${entropy.toFixed(3)} bits/byte <em class="ent"><i style="width:${(entropy / 8) * 100}%"></i></em></b></div>
+        <div class="da-row"><span>Printable</span><b>${(printable * 100).toFixed(1)}%</b></div>
+        <div class="da-row"><span>SHA-256</span><b class="mono">${hash}</b></div>
+        <div class="da-row"><span>First 64 bytes</span><b class="mono">${hex}</b></div>`;
+    };
+    daFile.addEventListener("change", () => daFile.files[0] && run(daFile.files[0]));
+    ["dragenter", "dragover"].forEach((t) => daDrop.addEventListener(t, (e) => { e.preventDefault(); daDrop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach((t) => daDrop.addEventListener(t, () => daDrop.classList.remove("over")));
+    daDrop.addEventListener("drop", (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) run(f); });
+  }
 
   /* ---------------- round three ---------------- */
   // decode text from random glyphs into the real words
@@ -634,7 +736,7 @@
   // type "sudo" anywhere
   let typedKeys = "";
   document.addEventListener("keydown", (e) => {
-    if (document.activeElement.tagName === "INPUT" || e.key.length !== 1) return;
+    if (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || e.key.length !== 1) return;
     typedKeys = (typedKeys + e.key.toLowerCase()).slice(-4);
     if (typedKeys === "sudo") {
       toast("“Always use sudo.” · Evi Nemeth");
