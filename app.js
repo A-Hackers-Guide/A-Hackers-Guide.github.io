@@ -97,9 +97,9 @@
       <div class="ch-grid">
         <aside class="ch-side">
           <div class="ch-index">${pad(i + 1)}</div>
-          <p class="eyebrow">// ${esc(r.repo)}</p>
+          <p class="eyebrow">// ${esc(r.repo)} <span class="live-pill" data-live="${esc(r.repo)}"></span></p>
           <h2 class="split">${esc(r.name)}</h2>
-          <p class="ch-kicker reveal">${esc(r.kicker)}</p>
+          <p class="ch-kicker reveal" data-decode>${esc(r.kicker)}</p>
           <p class="ch-sum reveal">${esc(r.summary)}</p>
           <div class="ch-links reveal">
             <a class="btn primary magnetic" href="${gh(r)}" target="_blank" rel="noopener"><span>View repo ↗</span></a>
@@ -363,6 +363,7 @@
     $$("pre[data-type]", el).forEach(typeTerm);
     if (el.classList.contains("donut-wrap")) $$("#donut circle").forEach((c, i) => setTimeout(() => (c.style.strokeDasharray = `${c.dataset.len} ${C}`), i * 80));
     if (el.classList.contains("ch-banner")) el.classList.add("hit");
+    if (el.matches("[data-decode]")) decode(el);
     io.unobserve(el);
   }), { threshold: 0.15, rootMargin: "0px 0px -8% 0px" });
   $$(".reveal, .split, .stagger, .donut-wrap, .ch-banner").forEach((e) => io.observe(e));
@@ -393,6 +394,7 @@
   }
 
   /* ---------------- scroll-driven effects ---------------- */
+  const tint = $("#tint");
   const prog = $("#progress"), nav = $("#nav"), topBtn = $("#top-btn");
   const words = $$("#big-words .w"), manSec = $("#manifesto");
   const pinWrap = $("#pin-wrap"), track = $("#h-track"), hBar = $("#h-bar");
@@ -467,6 +469,7 @@
     dots.forEach((d, i) => d.classList.toggle("active", i === act));
     const accent = sections[act].style.getPropertyValue("--accent");
     $("#dots").style.setProperty("--accent", accent || "var(--brand)");
+    tint.style.backgroundColor = accent || "transparent";
     const id = sections[act].id;
     navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + id || (a.getAttribute("href") === "#projects" && S.repos.some((r) => r.id === id))));
     ticking = false;
@@ -590,6 +593,54 @@
     document.body.classList.toggle("matrix");
     toast(document.body.classList.contains("matrix") ? "Wake up, Neo… matrix mode on" : "Matrix mode off");
   }
+
+
+  /* ---------------- round three ---------------- */
+  // decode text from random glyphs into the real words
+  function decode(el) {
+    if (reduce || el.dataset.decoded) return; el.dataset.decoded = 1;
+    const orig = el.textContent; let f = 0;
+    const run = () => {
+      el.textContent = [...orig].map((c, i) => (c === " " || i < f ? c : glyphs[(Math.random() * glyphs.length) | 0])).join("");
+      f += Math.max(1, orig.length / 40);
+      if (f < orig.length) requestAnimationFrame(run); else el.textContent = orig;
+    };
+    run();
+  }
+
+  // live numbers straight from the GitHub API, cached per visit
+  const ago = (iso) => {
+    const s = (Date.now() - new Date(iso)) / 1000;
+    for (const [n, u] of [[31536000, "y"], [2592000, "mo"], [86400, "d"], [3600, "h"], [60, "m"]]) if (s >= n) return Math.floor(s / n) + u + " ago";
+    return "just now";
+  };
+  const paintLive = (repo, d) => $$(`[data-live="${repo}"]`).forEach((el) => {
+    el.innerHTML = `<i></i>live${d.stargazers_count ? ` · ★ ${d.stargazers_count}` : ""} · pushed ${ago(d.pushed_at)}`;
+    el.classList.add("on");
+  });
+  S.repos.forEach((r, i) => {
+    let cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem("gh:" + r.repo)); } catch (e) {}
+    if (cached) { paintLive(r.repo, cached); return; }
+    setTimeout(() => fetch(`https://api.github.com/repos/${S.user}/${r.repo}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((d) => {
+        const keep = { stargazers_count: d.stargazers_count, pushed_at: d.pushed_at };
+        try { sessionStorage.setItem("gh:" + r.repo, JSON.stringify(keep)); } catch (e) {}
+        paintLive(r.repo, keep);
+      }).catch(() => {}), 600 + i * 120);
+  });
+
+  // type "sudo" anywhere
+  let typedKeys = "";
+  document.addEventListener("keydown", (e) => {
+    if (document.activeElement.tagName === "INPUT" || e.key.length !== 1) return;
+    typedKeys = (typedKeys + e.key.toLowerCase()).slice(-4);
+    if (typedKeys === "sudo") {
+      toast("“Always use sudo.” · Evi Nemeth");
+      if (!reduce) document.body.animate([{ filter: "hue-rotate(0)" }, { filter: "hue-rotate(360deg)" }], { duration: 1200 });
+    }
+  });
 
   let toastT;
   function toast(msg) {
