@@ -305,8 +305,32 @@
       });
       c.addEventListener("pointerleave", () => { c.style.transform = ""; });
     });
-    // spotlight on stat tiles
-    $$(".stat").forEach((s) => s.addEventListener("pointermove", (e) => {
+    // hero letters lean toward the pointer
+    const heroChars = $$(".glitch .ch");
+    $(".hero").addEventListener("pointermove", (e) => {
+      if (!document.body.classList.contains("ready")) return;
+      heroChars.forEach((ch) => {
+        const r = ch.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+        const f = Math.max(0, 1 - Math.hypot(dx, dy) / 260);
+        ch.style.transition = "transform .25s ease-out";
+        ch.style.transform = `translate(${dx * f * 0.12}px, ${dy * f * 0.18 - f * 18}px) rotate(${dx * f * 0.04}deg) scale(${1 + f * 0.12})`;
+      });
+    });
+    $(".hero").addEventListener("pointerleave", () => heroChars.forEach((ch) => { ch.style.transition = "transform .8s var(--ease)"; ch.style.transform = ""; }));
+
+    // click sparks
+    document.addEventListener("pointerdown", (e) => {
+      const col = getComputedStyle(e.target.closest?.("[style*='--accent'], [style*='--c']") || document.body).getPropertyValue("--accent").trim() || "#8b5cf6";
+      for (let i = 0; i < 12; i++) {
+        const s = document.createElement("i"), a = (i / 12) * Math.PI * 2, d = 40 + Math.random() * 40;
+        s.className = "spark"; s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px"; s.style.background = col;
+        document.body.appendChild(s);
+        s.animate([{ transform: "translate(-50%,-50%) scale(1)", opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(0)`, opacity: 0 }], { duration: 600 + Math.random() * 300, easing: "cubic-bezier(.22,1,.36,1)" }).onfinish = () => s.remove();
+      }
+    });
+
+    // spotlight on stat tiles and feature cards
+    $$(".stat, .feat").forEach((s) => s.addEventListener("pointermove", (e) => {
       const r = s.getBoundingClientRect();
       s.style.setProperty("--mx", `${e.clientX - r.left}px`); s.style.setProperty("--my", `${e.clientY - r.top}px`);
     }));
@@ -374,6 +398,7 @@
   const pinWrap = $("#pin-wrap"), track = $("#h-track"), hBar = $("#h-bar");
   const steps = $$(".steps");
   const banners = $$(".ch-banner");
+  const cards = $$(".pcard");
   const tlFill = $("#tl-fill"), tl = $("#tl");
   const heroInner = $(".hero-inner");
   const dots = $$("#dots a"), navLinks = $$(".nav-links a");
@@ -405,6 +430,13 @@
     const pk = dist > 0 ? Math.min(1, Math.max(0, -pr.top / dist)) : 0;
     track.style.transform = `translateX(${-pk * Math.max(0, track.scrollWidth - innerWidth)}px)`;
     hBar.style.transform = `scaleX(${pk})`;
+    // cards bend away from the centre of the screen like a coverflow
+    if (!reduce && pr.top < vh && pr.bottom > 0) cards.forEach((c) => {
+      if (c.matches(":hover")) return;
+      const r = c.getBoundingClientRect(), d = (r.left + r.width / 2 - innerWidth / 2) / innerWidth;
+      c.style.transform = `perspective(1000px) rotateY(${d * -28}deg) scale(${1 - Math.min(0.14, Math.abs(d) * 0.18)})`;
+      c.style.opacity = 1 - Math.min(0.5, Math.abs(d) * 0.55);
+    });
 
     // chapter banners: giant names slide sideways
     banners.forEach((b) => {

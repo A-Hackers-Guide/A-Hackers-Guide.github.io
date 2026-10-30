@@ -433,3 +433,17 @@ body.matrix .glitch { background: linear-gradient(120deg, #22ff88, #00ffcc); -we
 .ch-index { transform: translateY(calc((1 - var(--k, 1)) * 30px)); }
 .steps.static li { opacity: 1; }
 .steps.static::before { display: none; }
+
+/* ---------- round two ---------- */
+.spark { position: fixed; z-index: 998; width: 7px; height: 7px; border-radius: 2px; pointer-events: none; }
+.feat::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 22%, transparent), transparent 50%); opacity: 0; transition: opacity .4s; }
+.feat:hover::before { opacity: 1; }
+.ch-banner::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: calc(var(--k) * .5);
+  background: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--accent) 14%, transparent) 3px 4px),
+              radial-gradient(60% 80% at 50% 50%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%);
+  animation: scan 6s linear infinite;
+}
+@keyframes scan { to { background-position: 0 120px, 0 0; } }
+.pcard { transition: transform .35s var(--ease), opacity .35s, box-shadow .4s; }
+.ch-index { transition: transform .3s; }
