@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Hacker's Guide</title>
+<meta name="description" content="Cross-platform ports, native apps and developer tools by A-Hackers-Guide on GitHub.">
+<meta name="theme-color" content="#07060b">
+<meta property="og:title" content="A Hacker's Guide">
+<meta property="og:description" content="Building tools that break the walls between platforms.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%238b5cf6'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='monospace'>&gt;_</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- boot screen -->
+<div id="boot" aria-hidden="true">
+  <pre id="boot-log"></pre>
+  <div class="boot-bar"><span></span></div>
+</div>
+
+<div id="progress" aria-hidden="true"></div>
+<div id="cursor" aria-hidden="true"></div>
+<div id="cursor-dot" aria-hidden="true"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header id="nav">
+  <a href="#top" class="logo magnetic" data-scramble>&gt;_ A-Hackers-Guide</a>
+  <nav class="nav-links">
+    <a href="#projects" class="magnetic" data-scramble>Projects</a>
+    <a href="#languages" class="magnetic" data-scramble>Languages</a>
+    <a href="#timeline" class="magnetic" data-scramble>Timeline</a>
+  </nav>
+  <div class="nav-actions">
+    <button id="palette-btn" class="chip magnetic" aria-label="Open command palette"><kbd>⌘</kbd><kbd>K</kbd></button>
+    <button id="theme-btn" class="icon-btn magnetic" aria-label="Toggle theme">◐</button>
+    <button id="menu-btn" class="burger magnetic" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- full-screen menu -->
+<div id="menu" aria-hidden="true">
+  <div class="menu-bg"></div>
+  <div class="menu-inner">
+    <p class="menu-label">// navigate</p>
+    <ol id="menu-list"></ol>
+    <div class="menu-foot">
+      <a href="https://github.com/A-Hackers-Guide" target="_blank" rel="noopener">github.com/A-Hackers-Guide ↗</a>
+      <span>Press <kbd>Esc</kbd> to close</span>
+    </div>
+  </div>
+  <div class="menu-preview" id="menu-preview"></div>
+</div>
+
+<!-- command palette -->
+<div id="palette" aria-hidden="true" role="dialog" aria-label="Command palette">
+  <div class="palette-box">
+    <input id="palette-input" type="text" placeholder="Jump to a project, section or action…" autocomplete="off" spellcheck="false">
+    <ul id="palette-list"></ul>
+    <div class="palette-hint"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+
+<!-- right-side section dots -->
+<nav id="dots" aria-label="Sections"></nav>
+
+<main id="top">
+
+  <section class="hero" data-section="Home">
+    <div class="hero-inner">
+      <p class="eyebrow reveal">github.com/<span>A-Hackers-Guide</span></p>
+      <h1 class="glitch" data-text="A Hacker's Guide">A Hacker's Guide</h1>
+      <p class="hero-sub reveal"><span id="typed"></span><span class="caret">▍</span></p>
+      <div class="hero-cta reveal">
+        <a href="#projects" class="btn primary magnetic"><span>Explore the projects</span></a>
+        <a href="https://github.com/A-Hackers-Guide" class="btn ghost magnetic" target="_blank" rel="noopener"><span>Open GitHub ↗</span></a>
+      </div>
+    </div>
+    <div class="orbit" aria-hidden="true" id="orbit"></div>
+    <a href="#manifesto" class="scroll-cue" aria-label="Scroll down"><span></span></a>
+  </section>
+
+  <section id="manifesto" class="manifesto" data-section="Manifesto">
+    <p class="big-words" id="big-words"></p>
+  </section>
+
+  <section class="stats" data-section="Numbers">
+    <div class="stats-grid" id="stats"></div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+  <section id="projects" class="projects" data-section="Projects">
+    <div class="pin-wrap" id="pin-wrap">
+      <div class="pin-sticky">
+        <div class="pin-head">
+          <p class="eyebrow" id="proj-count">// projects</p>
+          <h2 class="split">Things I've shipped</h2>
+          <p class="muted">Scroll sideways through every project. Click a card for the deep dive.</p>
+        </div>
+        <div class="h-track" id="h-track"></div>
+        <div class="h-progress"><span id="h-bar"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="chapters"></div>
+
+  <section id="languages" class="languages" data-section="Languages">
+    <p class="eyebrow reveal">// bytes of code, by language</p>
+    <h2 class="split">What it's all written in</h2>
+    <div class="lang-wrap">
+      <div class="donut-wrap reveal"><svg id="donut" viewBox="0 0 200 200"></svg><div class="donut-center" id="donut-center"></div></div>
+      <ul class="lang-list" id="lang-list"></ul>
+    </div>
+  </section>
+
+  <section id="timeline" class="timeline" data-section="Timeline">
+    <p class="eyebrow reveal">// 2026</p>
+    <h2 class="split">When each one started</h2>
+    <div class="tl" id="tl"><div class="tl-line"><span id="tl-fill"></span></div></div>
+  </section>
+
+  <footer class="footer" data-section="End">
+    <p class="foot-quote split" id="foot-quote"></p>
+    <a href="https://github.com/A-Hackers-Guide" class="btn primary magnetic big" target="_blank" rel="noopener"><span>Follow on GitHub ↗</span></a>
+    <p class="muted small">Every word on this page comes from the repositories' own READMEs. Try <kbd>⌘K</kbd>, or the Konami code.</p>
+  </footer>
+</main>
+
+<!-- project detail modal -->
+<div id="modal" aria-hidden="true" role="dialog">
+  <div class="modal-bg"></div>
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<button id="top-btn" class="magnetic" aria-label="Back to top">↑</button>
+<div id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
