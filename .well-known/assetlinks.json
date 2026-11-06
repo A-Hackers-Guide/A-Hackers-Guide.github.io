@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.ahackersguide.freemessenger",
+      "sha256_cert_fingerprints": ["DE:5E:09:92:26:20:11:D4:32:1C:0C:76:30:DE:64:51:6F:8C:E7:27:E7:B3:4A:87:CC:59:23:6D:B6:07:81:91"]
+    }
+  }
+]
