@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <script>
   // pick the theme before first paint: saved choice, else the system setting
   (function () {
@@ -43,6 +43,7 @@
   <nav class="nav-links">
     <a href="#projects" class="magnetic" data-scramble>Projects</a>
     <a href="#languages" class="magnetic" data-scramble>Languages</a>
+    <a href="#explore" class="magnetic" data-scramble>Explore</a>
     <a href="#timeline" class="magnetic" data-scramble>Timeline</a>
   </nav>
   <div class="nav-actions">
@@ -120,6 +121,24 @@
 
   <div id="chapters"></div>
 
+  <section id="explore" class="explore" data-section="Explore">
+    <div class="ex-head">
+      <div>
+        <p class="eyebrow reveal">// find a project</p>
+        <h2 class="split">Explore everything</h2>
+      </div>
+      <button class="btn primary magnetic dice-btn" id="dice-btn"><span>🎲 Surprise me</span></button>
+    </div>
+    <div class="ex-tools reveal">
+      <div class="chips" id="ex-chips" role="tablist" aria-label="Filter by category"></div>
+      <input id="ex-search" type="search" placeholder="Search projects…" autocomplete="off" spellcheck="false" aria-label="Search projects">
+    </div>
+    <div class="ex-grid" id="ex-grid"></div>
+    <p class="ex-empty muted" id="ex-empty" hidden>Nothing matches that yet.</p>
+  </section>
+
+  <div id="slot" aria-hidden="true"><div class="slot-box"><p class="eyebrow">// rolling…</p><div class="slot-win"><div class="slot-reel" id="slot-reel"></div></div></div></div>
+
   <section id="languages" class="languages" data-section="Languages">
     <p class="eyebrow reveal">// bytes of code, by language</p>
     <h2 class="split">What it's all written in</h2>
@@ -151,7 +170,7 @@
 <button id="top-btn" class="magnetic" aria-label="Back to top">↑</button>
 <div id="toast" role="status"></div>
 
-<script src="data.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="data.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

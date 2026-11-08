@@ -256,7 +256,7 @@
   $("#dots").innerHTML = sections.map((s, i) => `<a href="#" data-i="${i}" aria-label="${esc(s.dataset.section)}"><span>${esc(s.dataset.section)}</span></a>`).join("");
   $$("#dots a").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); sections[+a.dataset.i].scrollIntoView({ behavior: "smooth" }); }));
 
-  const menuItems = [["Home", "#top", null], ["Projects", "#projects", null], ...S.repos.map((r) => [r.name, "#" + r.id, r]), ["Languages", "#languages", null], ["Timeline", "#timeline", null]];
+  const menuItems = [["Home", "#top", null], ["Projects", "#projects", null], ...S.repos.map((r) => [r.name, "#" + r.id, r]), ["Explore", "#explore", null], ["Languages", "#languages", null], ["Timeline", "#timeline", null]];
   $("#menu-list").innerHTML = menuItems.map(([t, h], i) => `<li><a href="${h}" data-mi="${i}" style="transition-delay:${0.15 + i * 0.04}s">${esc(t)}</a></li>`).join("");
 
   /* ---------------- boot sequence ---------------- */
@@ -588,6 +588,8 @@
     { t: "Projects gallery", k: "jump", i: "▦", run: () => go("#projects") },
     { t: "Languages", k: "jump", i: "◔", run: () => go("#languages") },
     { t: "Timeline", k: "jump", i: "⌇", run: () => go("#timeline") },
+    { t: "Explore all projects", k: "jump", i: "▦", run: () => go("#explore") },
+    { t: "Surprise me: random project", k: "action", i: "🎲", run: () => surprise() },
     { t: "Toggle light / dark mode", k: "action", i: "☀", run: () => $("#theme-btn").click() },
     { t: "Matrix mode", k: "action", i: "01", run: matrix },
     { t: "Back to top", k: "action", i: "↑", run: () => go("#top") },
@@ -883,6 +885,103 @@
       else log(`${t}  voice  click  office-mac  → 403 AI control not allowed`, "bad");
     }));
     $("#ht-ai").addEventListener("change", (e) => log(`# AI control ${e.target.checked ? "granted" : "revoked"} for office-mac`, "c"));
+  }
+
+
+  /* ---------------- round six: explorer, dice, scroll speed ---------------- */
+  // categories are this page's own grouping, not something the repos claim
+  const CATS = {
+    "Dev tools": ["crossfire", "apivis", "blockflow", "quoder"],
+    "OS & hardware": ["ocmp", "fruitos", "vphoneduo", "usbkit", "questclassic", "duomap"],
+    "Science & research": ["fruitgpt", "fruitos", "duomap", "archaeologist"],
+    "Privacy & security": ["freemessenger", "numberlock", "archaeologist", "quoder"],
+    "AI": ["quoder", "hearth", "sys1", "questclassic"],
+    "Cloud & home": ["sys1", "hearth", "freemessenger"],
+    "Games & fun": ["wiithemer", "questclassic", "prism", "scoreforge"]
+  };
+  const catsOf = (id) => Object.keys(CATS).filter((c) => CATS[c].includes(id));
+  const exGrid = $("#ex-grid"), exChips = $("#ex-chips"), exSearch = $("#ex-search");
+  let exCat = "All";
+  exChips.innerHTML = ["All", ...Object.keys(CATS)].map((c) =>
+    `<button role="tab" class="chip-btn${c === "All" ? " on" : ""}" data-cat="${esc(c)}">${esc(c)}<sup>${c === "All" ? S.repos.length : S.repos.filter((r) => CATS[c].includes(r.id)).length}</sup></button>`).join("");
+  exGrid.innerHTML = S.repos.map((r) => `
+    <button class="ex-tile" data-open="${r.id}" data-id="${r.id}" style="--c:${r.accent}">
+      <span class="ex-ico">${esc(r.icon)}</span>
+      <b>${esc(r.name)}</b>
+      <span class="ex-k">${esc(r.kicker)}</span>
+      <span class="ex-tags">${catsOf(r.id).map((c) => `<i>${esc(c)}</i>`).join("")}</span>
+    </button>`).join("");
+  const tiles = $$(".ex-tile", exGrid);
+  const filterGrid = () => {
+    const q = exSearch.value.trim().toLowerCase();
+    // FLIP: remember where every tile was, change the layout, then animate from old to new
+    const before = new Map(tiles.map((t) => [t, t.getBoundingClientRect()]));
+    let shown = 0;
+    tiles.forEach((t) => {
+      const r = S.repos.find((x) => x.id === t.dataset.id);
+      const hay = [r.name, r.repo, r.kicker, r.summary, ...Object.keys(r.langs), ...catsOf(r.id)].join(" ").toLowerCase();
+      const ok = (exCat === "All" || CATS[exCat].includes(r.id)) && (!q || q.split(/\s+/).every((w) => hay.includes(w)));
+      t.hidden = !ok; if (ok) shown++;
+    });
+    $("#ex-empty").hidden = shown > 0;
+    if (reduce) return;
+    tiles.forEach((t) => {
+      if (t.hidden) return;
+      const a = before.get(t), b = t.getBoundingClientRect();
+      if (!a.width) { t.animate([{ opacity: 0, transform: "scale(.85) translateY(20px)" }, { opacity: 1, transform: "none" }], { duration: 500, easing: "cubic-bezier(.22,1,.36,1)" }); return; }
+      const dx = a.left - b.left, dy = a.top - b.top;
+      if (dx || dy) t.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 550, easing: "cubic-bezier(.22,1,.36,1)" });
+    });
+  };
+  exChips.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-cat]"); if (!b) return;
+    exCat = b.dataset.cat;
+    $$(".chip-btn", exChips).forEach((x) => x.classList.toggle("on", x === b));
+    filterGrid();
+  });
+  exSearch.addEventListener("input", filterGrid);
+  if (fine && !reduce) tiles.forEach((t) => t.addEventListener("pointermove", (e) => {
+    const r = t.getBoundingClientRect();
+    t.style.setProperty("--mx", `${e.clientX - r.left}px`); t.style.setProperty("--my", `${e.clientY - r.top}px`);
+  }));
+
+  // dice: a slot-machine roll that lands on a random project
+  const slot = $("#slot"), reel = $("#slot-reel");
+  let rolling = false;
+  function surprise() {
+    if (rolling) return; rolling = true;
+    const pick = S.repos[(Math.random() * S.repos.length) | 0];
+    if (reduce) { go("#" + pick.id); rolling = false; return; }
+    const seq = [...Array(26)].map(() => S.repos[(Math.random() * S.repos.length) | 0]).concat(pick);
+    reel.innerHTML = seq.map((r) => `<div style="color:${r.accent}"><span>${esc(r.icon)}</span>${esc(r.name)}</div>`).join("");
+    reel.style.transition = "none"; reel.style.transform = "translateY(0)";
+    slot.classList.add("open"); void reel.offsetHeight;
+    const h = reel.firstElementChild.offsetHeight;
+    reel.style.transition = "transform 2.2s cubic-bezier(.12,.8,.18,1)";
+    reel.style.transform = `translateY(${-h * (seq.length - 1)}px)`;
+    setTimeout(() => {
+      reel.lastElementChild.classList.add("win");
+      setTimeout(() => { slot.classList.remove("open"); go("#" + pick.id); rolling = false; toast(`🎲 ${pick.name}`); }, 700);
+    }, 2300);
+  }
+  $("#dice-btn").addEventListener("click", surprise);
+
+  // marquee speeds up and leans with how fast you scroll
+  const mTrack = $("#marquee");
+  if (!reduce && mTrack) {
+    mTrack.style.animation = "none";
+    let pos = 0, vel = 0, lastSY = scrollY, lastT = performance.now();
+    const tick = (t) => {
+      const dt = Math.min(64, t - lastT); lastT = t;
+      const dy = scrollY - lastSY; lastSY = scrollY;
+      vel += ((dy / Math.max(dt, 1)) * 16 - vel) * 0.12;
+      const half = mTrack.scrollWidth / 2;
+      pos -= (0.6 + Math.abs(vel) * 0.8) * (dt / 16);
+      if (half && pos <= -half) pos += half;
+      mTrack.style.transform = `translateX(${pos}px) skewX(${Math.max(-14, Math.min(14, -vel * 0.6))}deg)`;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   /* ---------------- round three ---------------- */
