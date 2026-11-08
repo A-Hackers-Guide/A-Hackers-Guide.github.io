@@ -698,3 +698,7 @@ body.matrix .glitch { background: linear-gradient(120deg, #22ff88, #00ffcc); -we
 @media (max-width: 960px) { .nav-links { display: none; } }
 .nav-actions > * { flex-shrink: 0; }
 .logo { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* headings shrink with narrow screens so names like FreeMessenger stay whole */
+.ch-side h2 { font-size: min(clamp(2.2rem, 5vw, 4rem), 10vw); }
+.ch-side h2, .m-head h2 { overflow-wrap: break-word; }

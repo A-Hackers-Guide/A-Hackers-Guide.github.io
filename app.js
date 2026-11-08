@@ -1054,7 +1054,7 @@
     "Privacy & security": ["freemessenger", "numberlock", "archaeologist", "quoder"],
     "AI": ["quoder", "hearth", "sys1", "questclassic"],
     "Cloud & home": ["sys1", "hearth", "freemessenger"],
-    "Games & fun": ["wiithemer", "questclassic", "prism", "scoreforge", "nin64", "son64", "mic64"]
+    "Games & fun": ["wiithemer", "questclassic", "prism", "scoreforge", "nin64", "son64", "mic64", "freemessenger"]
   };
   const catsOf = (id) => Object.keys(CATS).filter((c) => CATS[c].includes(id));
   const exGrid = $("#ex-grid"), exChips = $("#ex-chips"), exSearch = $("#ex-search");

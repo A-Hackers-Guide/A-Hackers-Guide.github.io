@@ -376,54 +376,60 @@ window.SITE = {
       icon: "✉",
       created: "2026-10-29",
       live: "https://a-hackers-guide.github.io/FreeMessenger/",
-      kicker: "Free texting, voice and video calls in any web browser",
-      summary: "Your username is your phone number. No app to install, no email, phone number or password. Messages and call setup are end-to-end encrypted in your browser.",
-      stats: [["0", "dependencies"], ["E2E", "encrypted"], ["$0", "to run"], ["12", "files"]],
-      langs: { JavaScript: 36101, CSS: 10088, HTML: 5797 },
+      kicker: "Free texting, voice and video calls in any browser, and now an app",
+      summary: "Your username works like a phone number. No email, phone number or password, and no ads or paid features. Messages are encrypted in your browser before they're sent, and it now runs as an Android app or an installed app on every other device.",
+      stats: [["v1.2.0", "with an Android app"], ["256", "people per group"], ["20", "people per group call"], ["10 GB", "per file"]],
+      langs: { JavaScript: 491195, CSS: 54190, HTML: 32433, PowerShell: 10492, Shell: 4818 },
       pipeline: [
         ["Pick a name", "Choose a username like @sam: 3 to 20 characters of a–z, 0–9 and _."],
         ["Keys are made", "Your browser makes an ECDSA P-256 key pair for identity and an ECDH P-256 key pair for encryption."],
-        ["Back up", "Download the backup file: a copy of your keys, the only way to sign in on another device."],
-        ["Sign in", "The relay sends a random challenge; your browser signs it."],
-        ["Chat", "Messages are encrypted with AES-256-GCM using a key both people derive with ECDH."],
-        ["Call", "WebRTC voice and video go directly between browsers whenever possible."]
+        ["Back up", "Download the backup file: a copy of your keys, the only way back into your account on a new device."],
+        ["Connect", "A WebSocket to the relay, or ordinary web requests on networks that block WebSockets."],
+        ["Chat", "Each message is encrypted with AES-256-GCM using a key both people derive with ECDH."],
+        ["Call", "WebRTC voice and video go directly between browsers whenever possible; group calls reach 20 people."]
       ],
       features: [
-        ["Verify encryption", "A 12-digit code you compare with your friend; if they match, nobody is listening in"],
-        ["Invite links", "Share a link like …/FreeMessenger/#sam that lands people right in a chat with you"],
-        ["Offline inbox", "Up to 500 messages, still encrypted, kept on the relay for up to 30 days"],
-        ["No impersonation", "The relay sets the sender's name itself"],
-        ["Notifications", "While the tab is open, via ⋯ → Turn on notifications"],
-        ["Hosting", "Web app on GitHub Pages; relay on Cloudflare Workers + Durable Objects, one per username"],
-        ["Zero maintenance", "No libraries to update, pinned compatibility date, capped storage, keep-alives that don't wake the relay"],
-        ["Self-host", "Fork, deploy the relay with wrangler, set RELAY_URL, publish with GitHub Actions"]
+        ["Chat", "Replies, reactions, edit and delete for everyone, typing, read receipts, formatting, @mentions and spoilers"],
+        ["Groups", "Up to 256 people with admins, invite links, group photos, and announcement-only groups"],
+        ["Calls", "Voice, video, screen sharing, group calls up to 20 with automatic video quality, and call history"],
+        ["Share anything", "Photos, videos, voice and video messages, doodles, location and files up to 10 GB through the home server"],
+        ["Extras", "Polls and quiz polls, stories, broadcast lists, scheduled messages, reminders, stickers, and tic-tac-toe and Connect Four"],
+        ["Make it yours", "Themes, fonts, bubble shapes, per-chat backgrounds, 15 chat animations, and send effects like confetti and fireworks"],
+        ["All your devices", "Sync across devices, history kept on the server, notifications even when closed, an app lock PIN and Do Not Disturb"],
+        ["Works anywhere", "Falls back to plain web requests behind school, work and hotel filters, proxies and VPNs, and runs in browsers from about 2017"],
+        ["Two relays", "The main relay runs on the owner's PC; a free Cloudflare backup takes over when it's off and they sync every 30 seconds"],
+        ["Admin tools", "Approve, freeze, time out or ban accounts, reports, word alerts, announcements, sign-up modes and nightly backups"]
       ],
       terminal: [
+        "# Android: download FreeMessenger.apk from Releases",
+        "# iPhone/iPad: Safari → Share → Add to Home Screen",
+        "# run it locally",
         "$ cd relay && npm install && npx wrangler dev",
-        "$ cd client && python3 -m http.server 8080",
-        "# open http://localhost:8080 and http://127.0.0.1:8080",
-        "# they count as two separate people"
+        "$ cd client && npm install && npm run build && python3 -m http.server 8080"
       ],
       architecture: [
-        ["client/", "Plain HTML, CSS and JavaScript, no build step, no dependencies, on GitHub Pages"],
-        ["client/crypto.js", "Key generation, ECDH key agreement and AES-256-GCM"],
-        ["client/app.js", "The chat and call interface"],
-        ["relay/src/index.js", "Username directory, sign-in check, message passing, offline inbox"],
-        [".github/workflows/deploy.yml", "Publishes the site on push to main"]
+        ["client/", "The web app on GitHub Pages; the Deploy workflow bundles it for older browsers"],
+        ["server/", "The main relay on the owner's PC (Node.js): accounts, every message saved in SQLite, admin panel, web viewer, TURN logins"],
+        ["relay/", "The backup relay on Cloudflare Workers + Durable Objects, same protocol"],
+        ["android/", "A Trusted Web Activity: the site full-screen in the phone's browser engine, with a WebView fallback"],
+        ["client/files.js", "Files split into 32 KB encrypted pieces that resume after a reload"],
+        ["server/install.ps1", "One Windows command sets up the relay, its keys, the TURN server and startup"]
       ],
       downloads: [
-        ["Any browser", "Phones, tablets and computers"],
-        ["Message length", "8,000 characters"],
-        ["Roadmap", "Installable app, native apps, and an optional broadcaster for real phone lines"]
+        ["Android", "FreeMessenger.apk from Releases, or Chrome → Install app"],
+        ["iPhone / iPad", "Safari → Share → Add to Home Screen"],
+        ["Mac, Windows, Linux, ChromeOS", "Install from Safari, Chrome or Edge; every version is the same app and updates itself"],
+        ["Limits", "8,000 characters per message, 1 message a second (short bursts are fine)"]
       ],
       limits: [
-        "Group chats, photos and files aren't supported yet.",
-        "Notifications only work while the site is open in a tab.",
-        "Lose both your browser data and the backup file and the account can't be recovered.",
-        "Restoring a backup brings back your account, not your old chat history."
+        "Only partly private: messages are encrypted in your browser, but each saved message also gets a copy encrypted for the admin account, which the admin panel can read.",
+        "The admin can see account details and can freeze, time out, ban or remove accounts.",
+        "Lose both your browser data and your backup file and the account can't be recovered.",
+        "Calls need WebRTC and an https:// address, so Tor Browser can text but not call.",
+        "Texting real phone numbers (SMS) isn't here yet; it's next on the roadmap."
       ],
-      license: "See repo",
-      release: "Live"
+      license: "MIT",
+      release: "v1.2.0"
     },
     {
       id: "questclassic",
