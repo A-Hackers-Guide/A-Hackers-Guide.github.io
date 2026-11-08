@@ -483,6 +483,9 @@
   const tlFill = $("#tl-fill"), tl = $("#tl");
   const heroInner = $(".hero-inner");
   const dots = $$("#dots a"), navLinks = $$(".nav-links a");
+  const ring = $("#ch-ring"), ringNum = $("#ch-num"), ringFg = $("#ch-ring .fg");
+  const RING = 2 * Math.PI * 15.5;
+  ringFg.style.strokeDasharray = RING;
   let lastY = 0, ticking = false;
 
   const sizePin = () => {
@@ -547,6 +550,15 @@
     sections.forEach((s, i) => { if (s.getBoundingClientRect().top < vh * 0.45) act = i; });
     dots.forEach((d, i) => d.classList.toggle("active", i === act));
     const accent = sections[act].style.getPropertyValue("--accent");
+    const ci = S.repos.findIndex((r) => r.id === sections[act].id);
+    ring.classList.toggle("on", ci >= 0);
+    if (ci >= 0) {
+      const cr = sections[act].getBoundingClientRect();
+      const within = Math.min(1, Math.max(0, -cr.top / Math.max(1, cr.height - vh)));
+      ringNum.textContent = `${pad(ci + 1)}/${pad(S.repos.length)}`;
+      ringFg.style.strokeDashoffset = RING * (1 - (ci + within) / S.repos.length);
+      ring.style.setProperty("--accent", accent);
+    }
     $("#dots").style.setProperty("--accent", accent || "var(--brand)");
     tint.style.backgroundColor = accent || "transparent";
     const id = sections[act].id;
@@ -589,6 +601,7 @@
     { t: "Languages", k: "jump", i: "◔", run: () => go("#languages") },
     { t: "Timeline", k: "jump", i: "⌇", run: () => go("#timeline") },
     { t: "Explore all projects", k: "jump", i: "▦", run: () => go("#explore") },
+    { t: "Open the terminal", k: "action", i: ">_", run: () => setShell(true) },
     { t: "Surprise me: random project", k: "action", i: "🎲", run: () => surprise() },
     { t: "Toggle light / dark mode", k: "action", i: "☀", run: () => $("#theme-btn").click() },
     { t: "Matrix mode", k: "action", i: "01", run: matrix },
@@ -665,7 +678,8 @@
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPal(!pal.classList.contains("open")); return; }
     if (e.key === "/" && !pal.classList.contains("open") && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); setPal(true); return; }
-    if (e.key === "Escape") { setPal(false); closeModal(); setMenu(false); }
+    if (e.key === "`" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); setShell(!shell.classList.contains("open")); return; }
+    if (e.key === "Escape") { setPal(false); closeModal(); setMenu(false); setShell(false); }
     kpos = e.key === konami[kpos] ? kpos + 1 : e.key === konami[0] ? 1 : 0;
     if (kpos === konami.length) { kpos = 0; matrix(); }
   });
@@ -887,6 +901,93 @@
     $("#ht-ai").addEventListener("change", (e) => log(`# AI control ${e.target.checked ? "granted" : "revoked"} for office-mac`, "c"));
   }
 
+
+
+  /* ---------------- round seven: a little shell ---------------- */
+  const shell = $("#shell"), shOut = $("#sh-out"), shIn = $("#sh-in");
+  const hist = []; let hi = 0;
+  const findRepo = (q) => {
+    q = (q || "").toLowerCase();
+    return S.repos.find((r) => [r.id, r.repo.toLowerCase(), r.name.toLowerCase()].includes(q)) ||
+      S.repos.find((r) => r.id.startsWith(q) || r.repo.toLowerCase().startsWith(q));
+  };
+  const print = (html, cls = "") => { const d = document.createElement("div"); d.className = "sh-l " + cls; d.innerHTML = html; shOut.appendChild(d); shOut.scrollTop = shOut.scrollHeight; };
+  const col = (r, t) => `<span style="color:${r.accent}">${esc(t)}</span>`;
+  const CMDS = {
+    help: () => print([
+      "<b>commands</b>",
+      "  ls [-l]          list every project",
+      "  cat &lt;project&gt;    what it is, in numbers",
+      "  open &lt;project&gt;   jump to its chapter",
+      "  gh &lt;project&gt;     open it on GitHub",
+      "  grep &lt;word&gt;      search every project",
+      "  langs            top languages by bytes",
+      "  roll             random project",
+      "  theme light|dark",
+      "  whoami · date · echo · clear · exit",
+      "<span class='dim'>tab completes project names · ↑/↓ for history</span>"].join("\n")),
+    ls: (a) => print(S.repos.map((r) => a[0] === "-l" ? `${col(r, r.id.padEnd(14))} ${esc(r.release.padEnd(14))} ${esc(r.kicker)}` : col(r, r.id)).join(a[0] === "-l" ? "\n" : "  ")),
+    cat: (a) => {
+      const r = findRepo(a[0]); if (!r) return print(`cat: ${esc(a[0] || "")}: no such project (try ls)`, "err");
+      print(`${col(r, r.icon + " " + r.name)}  <span class="dim">${esc(r.repo)} · ${esc(r.license)} · ${esc(r.release)}</span>\n${esc(r.summary)}\n${r.stats.map(([b, l]) => `  ${col(r, b)} ${esc(l)}`).join("\n")}`);
+    },
+    open: (a) => { const r = findRepo(a[0]); if (!r) return print(`open: ${esc(a[0] || "")}: not found`, "err"); print(`→ ${col(r, r.name)}`); setShell(false); go("#" + r.id); },
+    gh: (a) => { const r = findRepo(a[0]); if (!r) return print(`gh: ${esc(a[0] || "")}: not found`, "err"); print(`opening ${esc(gh(r))}`); open(gh(r), "_blank", "noopener"); },
+    grep: (a) => {
+      const w = a.join(" ").toLowerCase(); if (!w) return print("usage: grep &lt;word&gt;", "err");
+      const hits = S.repos.filter((r) => JSON.stringify(r).toLowerCase().includes(w));
+      print(hits.length ? hits.map((r) => `${col(r, r.id)}: ${esc(r.kicker)}`).join("\n") : `no matches for "${esc(w)}"`, hits.length ? "" : "dim");
+    },
+    langs: () => print(langSorted.slice(0, 8).map(([k, v]) => `  ${esc(k.padEnd(12))} ${"█".repeat(Math.max(1, Math.round((v / langSorted[0][1]) * 24)))} ${(v / 1024).toFixed(0)} KB`).join("\n")),
+    roll: () => { setShell(false); surprise(); },
+    theme: (a) => { if (!/^(light|dark)$/.test(a[0] || "")) return print("usage: theme light|dark", "err"); if (root.dataset.theme !== a[0]) themeBtn.click(); print(`theme → ${a[0]}`); },
+    whoami: () => print(`${esc(S.user)}\n${esc(S.tagline)}`),
+    date: () => print(esc(new Date().toString())),
+    echo: (a) => print(esc(a.join(" "))),
+    clear: () => { shOut.innerHTML = ""; },
+    exit: () => setShell(false),
+    sudo: () => print("“Always use sudo.” · Evi Nemeth\n<span class='dim'>…but not here. Nice try.</span>"),
+    rm: () => print("rm: permission denied. This page is read-only, like a good forensic tool.", "err")
+  };
+  CMDS.dir = CMDS.ls; CMDS.man = CMDS.help; CMDS.dice = CMDS.roll; CMDS.cd = CMDS.open;
+  const run = (line) => {
+    print(`<span class="sh-ps">guest@ahg:~$</span> ${esc(line)}`, "cmd");
+    const [c, ...a] = line.trim().split(/\s+/);
+    if (!c) return;
+    (CMDS[c.toLowerCase()] || (() => print(`${esc(c)}: command not found. Type help.`, "err")))(a);
+  };
+  function setShell(o) {
+    shell.classList.toggle("open", o); shell.setAttribute("aria-hidden", !o);
+    if (o) {
+      if (!shOut.childElementCount) {
+        print(`<span class="dim">A-Hackers-Guide shell · ${S.repos.length} projects mounted</span>`);
+        print("Type <b>help</b> to see what you can do.");
+      }
+      setTimeout(() => shIn.focus(), 60);
+    } else if (document.activeElement === shIn) shIn.blur();
+  }
+  $("#sh-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = shIn.value; shIn.value = "";
+    if (v.trim()) { hist.push(v); hi = hist.length; }
+    run(v);
+  });
+  shIn.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" && hist.length) { hi = Math.max(0, hi - 1); shIn.value = hist[hi]; e.preventDefault(); }
+    if (e.key === "ArrowDown" && hist.length) { hi = Math.min(hist.length, hi + 1); shIn.value = hist[hi] || ""; e.preventDefault(); }
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const parts = shIn.value.split(" "), last = parts.pop().toLowerCase();
+      const pool = parts.length ? S.repos.map((r) => r.id) : Object.keys(CMDS);
+      const m = pool.filter((x) => x.startsWith(last));
+      if (m.length === 1) shIn.value = [...parts, m[0]].join(" ") + " ";
+      else if (m.length > 1) print(m.join("  "), "dim");
+    }
+    if (e.key === "Escape") setShell(false);
+  });
+  $("#sh-close").addEventListener("click", () => setShell(false));
+  $("#term-btn").addEventListener("click", () => setShell(!shell.classList.contains("open")));
+  shell.addEventListener("click", (e) => { if (!e.target.closest("button, a")) shIn.focus(); });
 
   /* ---------------- round six: explorer, dice, scroll speed ---------------- */
   // categories are this page's own grouping, not something the repos claim

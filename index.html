@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 <script>
   // pick the theme before first paint: saved choice, else the system setting
   (function () {
@@ -47,6 +47,8 @@
     <a href="#timeline" class="magnetic" data-scramble>Timeline</a>
   </nav>
   <div class="nav-actions">
+    <div id="ch-ring" class="ch-ring" aria-hidden="true"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.5"/><circle class="fg" cx="18" cy="18" r="15.5"/></svg><span id="ch-num">00</span></div>
+    <button id="term-btn" class="chip magnetic term-btn" aria-label="Open terminal">&gt;_</button>
     <button id="palette-btn" class="chip magnetic" aria-label="Open command palette"><kbd>⌘</kbd><kbd>K</kbd></button>
     <button id="theme-btn" class="theme-sw magnetic" role="switch" aria-checked="false" aria-label="Light mode"><span class="stars"><i></i><i></i><i></i></span><span class="knob"><svg class="moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg></span></button>
     <button id="menu-btn" class="burger magnetic" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
@@ -167,10 +169,16 @@
   <div class="modal-box" id="modal-box"></div>
 </div>
 
+<div id="shell" aria-hidden="true" role="dialog" aria-label="Terminal">
+  <div class="sh-bar"><i></i><i></i><i></i><em>guest@a-hackers-guide: ~</em><button id="sh-close" aria-label="Close terminal">✕</button></div>
+  <div class="sh-out" id="sh-out" aria-live="polite"></div>
+  <form class="sh-line" id="sh-form"><span class="sh-ps">guest@ahg:~$</span><input id="sh-in" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></form>
+</div>
+
 <button id="top-btn" class="magnetic" aria-label="Back to top">↑</button>
 <div id="toast" role="status"></div>
 
-<script src="data.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="data.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
