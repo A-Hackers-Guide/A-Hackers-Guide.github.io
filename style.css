@@ -680,3 +680,21 @@ body.matrix .glitch { background: linear-gradient(120deg, #22ff88, #00ffcc); -we
 @media (max-width: 760px) { .orbit .planet { width: 36px; height: 36px; border-radius: 11px; font-size: .7rem; } }
 
 .glitch .word { display: inline-block; white-space: nowrap; background: inherit; -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- final pass: small screens ---------- */
+/* grid and flex children may shrink below their longest word */
+.ch-grid > *, .lang-wrap > *, .av-grid > *, .fm-grid > *, .ex-grid > * { min-width: 0; }
+/* long repo names like usb-overclock-kit wrap instead of pushing past the edge */
+.ch-side h2, .ch-side .eyebrow, .pcard h3, .ex-tile b, .tl-item h4, .m-head h2, .ch-mini b, .tree code, .dl b, .dl span, .feat b, .demo-head span { overflow-wrap: anywhere; }
+@media (max-width: 400px) {
+  .ch-mini { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ch-mini div { padding: 12px; }
+  .ch-mini b { font-size: 1.15rem; }
+  .ch-links .btn { padding: 10px 14px; font-size: .82rem; }
+  .pcard { padding: 22px; }
+  .logo { font-size: .76rem; }
+}
+/* the text links live in the ☰ menu and ⌘K too, so drop them before the bar runs out of room */
+@media (max-width: 960px) { .nav-links { display: none; } }
+.nav-actions > * { flex-shrink: 0; }
+.logo { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
