@@ -690,6 +690,65 @@ window.SITE = {
       release: "v0.2.0"
     },
     {
+      id: "duomap",
+      name: "iPhone Duo Hardware Map",
+      repo: "iphone-duo-hardware-map",
+      accent: "#86efac",
+      icon: "⌗",
+      created: "2026-10-30",
+      kicker: "How every part of the iPhone Duo is wired to, and driven by, iOS 27.2",
+      summary: "A map from silicon block, bus, interrupt and IOMMU up to the daemons and frameworks, for the iPhone Duo (iPhone19,4, board V68AP, A20 Pro t8160). Built from the device's own restore image, with every claim labelled by its evidence.",
+      stats: [["43,258", "pages"], ["3.5M", "lines"], ["552", "device-tree nodes"], ["150", "claims re-checked"]],
+      langs: { HTML: 366504, Python: 123686, Shell: 5207 },
+      pipeline: [
+        ["Read the image", "The iOS 27.2 restore image (build 24B91020) is read with blacktop's ipsw tool."],
+        ["Parse", "The device tree is parsed byte-exact: properties decoded, register windows turned into physical addresses."],
+        ["Bind", "Each hardware node is matched to the kernel driver that binds it and the firmware its processor runs."],
+        ["Climb", "From kexts up to the userland daemons and frameworks that own each subsystem."],
+        ["Label", "Every claim is tagged [DT], [KC], [FW], [DSC], [PUB], [RD] or [INF] for inference."],
+        ["Fact-check", "Four passes re-checked 150 claims and corrected 35."]
+      ],
+      features: [
+        ["15 chapters", "From SoC, boot and security through GPU, sensors, power and radios to a cold boot traced across every processor"],
+        ["What makes it a Duo", "A device-tree diff against an iPhone 18 Pro and the virtual iPhone: the 51 Duo-only nodes"],
+        ["Kernel", "All 322 kexts and 3,388 C++ classes, one page each, plus BSD syscalls, Mach traps and MIG routines"],
+        ["Firmware", "All 56 firmware images and 277 standalone ramdisk firmware files"],
+        ["Userland", "All 4,776 dyld-cache images and 33,249 Objective-C classes and protocols from hardware-facing frameworks"],
+        ["Explorer", "A single-file HTML browser that searches all 552 device-tree nodes"],
+        ["duomap.py", "Command-line queries: who binds a driver, which block owns an interrupt or address"],
+        ["Honest depth", "No transistor layouts, internal register specs or encrypted firmware contents: it says where it stops"]
+      ],
+      terminal: [
+        "$ python3 tools/duomap.py node display1",
+        "$ python3 tools/duomap.py who gpu,t8160",
+        "$ python3 tools/duomap.py irq 1226",
+        "$ python3 tools/duomap.py addr 0x2a8000000",
+        "$ python3 tools/duomap.py unbound"
+      ],
+      architecture: [
+        ["docs/", "The 15 chapters, plus ARCHITECTURE, TOUR and the master MAP"],
+        ["reference/", "Generated pages: device tree, kexts, kernel classes, firmware, ramdisks, userland, Obj-C classes"],
+        ["reference/compare/", "Duo vs iPhone 18 Pro, and Duo vs the vphone600 VM"],
+        ["explorer/index.html", "Offline device-tree browser"],
+        ["tools/", "2,806 lines of Python that generate everything"],
+        ["data/", "Raw and structured inputs with per-chapter evidence"]
+      ],
+      downloads: [
+        ["Read it", "Start with docs/TOUR.md"],
+        ["Device", "iPhone19,4 · V68AP · t8160 / A20 Pro"],
+        ["OS", "iOS 27.2, build 24B91020"]
+      ],
+      limits: [
+        "No transistor-level layouts, schematics or board netlists: those aren't public.",
+        "No Apple internal register specifications.",
+        "Encrypted firmware, including most of the SEP and parts of the baseband, can't be read.",
+        "Apple firmware and binaries aren't included, only derived tables, short excerpts and analysis.",
+        "tools/build_all.sh is syntax-checked but hasn't been run end to end yet."
+      ],
+      license: "See repo",
+      release: "iOS 27.2"
+    },
+    {
       id: "vphoneduo",
       name: "vphone Duo",
       repo: "vphone-duo",
@@ -800,6 +859,53 @@ window.SITE = {
       release: "v0.1.0"
     },
     {
+      id: "blockflow",
+      name: "BlockFlow",
+      repo: "BlockFlow",
+      accent: "#38bdf8",
+      icon: "▤",
+      created: "2026-10-17",
+      kicker: "A reimagined block-based exe maker for Windows",
+      summary: "Snap blocks together to build a little program, like asking questions, copying files, making folders, looping and branching. Then turn it into a standalone .exe you can hand to anyone.",
+      stats: [["16+", "block types"], ["1", "file: the .exe"], ["CC0", "public domain"], ["Win 10/11", "platform"]],
+      langs: { "C#": 170551, PowerShell: 11143 },
+      pipeline: [
+        ["Drag", "Pull blocks from the palette onto the canvas."],
+        ["Configure", "Fill in each block's settings."],
+        ["Run order", "Blocks run top to bottom, like a recipe, with If/Else and Repeat for logic."],
+        ["Pack files", "Anything in the project's copy folder gets packed inside the finished .exe."],
+        ["Save as .exe", "File → Save (as .exe), and optionally set the name, icon, details or a desktop shortcut."],
+        ["Edit later", "The project lives inside the .exe: open it in BlockFlow to keep editing, or export a .bflow."]
+      ],
+      features: [
+        ["Ask the user", "For text, yes or no, a choice from a list, or a file or folder"],
+        ["Files and folders", "Write text files; copy, move or copy many files; create files or folders"],
+        ["Logic", "If / Else / End If, Repeat / Exit Repeat, variables, and next free number"],
+        ["Output", "Show a message, open a folder, write to the log, wait, or stop the flow"],
+        ["Copy folder", "Bundle files into the .exe so it can install them wherever the user chooses"],
+        ["Crash recovery", "If BlockFlow closes unexpectedly, it offers to recover the project next time"]
+      ],
+      terminal: [
+        "# build from source (.NET 10 SDK on Windows)",
+        "> dotnet build src/BlockFlow.csproj -c Release"
+      ],
+      architecture: [
+        ["src/BlockFlow.csproj", "The C# app"],
+        [".exe output", "A standalone program with the project embedded inside it"],
+        [".bflow", "The project exported as its own file"]
+      ],
+      downloads: [
+        ["Windows 10/11", "BlockFlow.exe from Releases"],
+        ["Mirror", "Also on SourceForge as ahg-blockflow"]
+      ],
+      limits: [
+        "Windows only.",
+        "Blocks run strictly top to bottom; branching is through If/Else and Repeat blocks."
+      ],
+      license: "CC0 1.0",
+      release: "v21.76.91"
+    },
+    {
       id: "archaeologist",
       name: "Digital Archaeologist",
       repo: "digital-archaeologist",
@@ -856,6 +962,51 @@ window.SITE = {
       ],
       license: "MIT",
       release: "v2.0.1"
+    },
+    {
+      id: "prism",
+      name: "Prism OS",
+      repo: "Macbook-World",
+      accent: "#c4b5fd",
+      icon: "◭",
+      created: "2026-11-08",
+      kicker: "A retro-computing desktop simulator in your browser",
+      summary: "Boot a chime, pick an era, and land in a themed, working desktop. Everything is original art and original code: a parody love letter to four decades of personal computers.",
+      stats: [["4", "eras"], ["7", "apps"], ["1", "HTML file export"], ["0", "build step"]],
+      langs: { JavaScript: 7571, HTML: 6556, CSS: 5274 },
+      pipeline: [
+        ["Boot", "An original chime and mascot splash."],
+        ["Pick an era", "Choose which decade's look to boot into."],
+        ["Set up", "A first-run Setup Assistant with a welcome and a parody license."],
+        ["Use it", "Menu bar, dock, draggable windows and a control center."],
+        ["Open apps", "Settings, Notes, Calculator, Files, Browser, Transfer and About."],
+        ["Take it with you", "Transfer exports the current era as one standalone HTML file that works offline."]
+      ],
+      features: [
+        ["Dawn", "Early pixel era: black and white, a 1-bit vibe"],
+        ["Noon", "Beveled platinum: grey and chunky"],
+        ["Dusk", "Glossy glass: saturated and wet"],
+        ["Nightfall", "Frosted modern: translucent and blurred"],
+        ["Original everything", "Imagery, icons, wallpapers, sound and text are original; fonts use the system stack"],
+        ["Parody", "Not produced by, endorsed by, or affiliated with any computer company"]
+      ],
+      terminal: [
+        "$ python3 -m http.server 8000",
+        "# then open http://localhost:8000"
+      ],
+      architecture: [
+        ["HTML + CSS + JS", "A static site: any file server works"],
+        ["Shell", "Menu bar, dock, windows and control center"],
+        ["Transfer app", "Writes the current era out as a single HTML file"]
+      ],
+      downloads: [
+        ["Run it", "Any static file server, or GitHub Pages"]
+      ],
+      limits: [
+        "It's a simulator: the apps are small, self-contained parodies, not real system apps."
+      ],
+      license: "MIT",
+      release: "new"
     },
     {
       id: "hearth",
