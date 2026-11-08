@@ -69,7 +69,7 @@
     [S.repos.length, "", "featured projects"],
     [Object.keys(allLangs).length, "", "programming languages"],
     [Math.round(totalBytes / 1024), " KB", "of source code"],
-    [674, "", "porting rules in Crossfire"],
+    [705, "", "porting rules in Crossfire"],
     [4, "", "desktop OSes targeted"]
   ];
   $("#stats").innerHTML = stats.map(([n, suf, l]) => `<div class="stat reveal"><b data-count="${n}" data-suffix="${suf}">0${suf}</b><span>${l}</span></div>`).join("");

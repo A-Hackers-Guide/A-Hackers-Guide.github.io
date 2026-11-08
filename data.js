@@ -16,11 +16,11 @@ window.SITE = {
       live: "https://a-hackers-guide.github.io/crossfire/",
       kicker: "Port any project between Windows, macOS, Linux and FreeBSD",
       summary: "Point it at your source code. It maps every OS-specific call, asks a few questions, writes a portable version, and builds it.",
-      stats: [["674", "porting rules"], ["4", "target OSes"], ["50", "promises in the README"], ["3", "ways to run"]],
+      stats: [["705", "porting rules"], ["4", "target OSes"], ["50", "promises in the README"], ["3", "ways to run"]],
       langs: { Rust: 324868, TypeScript: 92365, CSS: 27806, "C++": 13543, C: 10247, Python: 9253, JavaScript: 4298, "C#": 4160, HTML: 362 },
       pipeline: [
         ["Source", "Pick a project folder. Crossfire detects which OS it was written for."],
-        ["Analyze", "Every file is scanned against 674 rules in 9 tables. You get a portability score, a heat map, and a suggested fix for each finding."],
+        ["Analyze", "Every file is scanned against 705 rules in 9 tables. You get a portability score, a heat map, and a suggested fix for each finding."],
         ["Targets", "Choose any of Windows, macOS, Linux and FreeBSD."],
         ["Configure", "Questions based on what was found: porting strategy, graphics and audio backends, build system, C++ standard, packaging, CI, AI help."],
         ["Convert", "Writes a new copy and never touches the original: rule-based rewrites, a portability shim, CMake, CI workflow and a report."],
@@ -51,7 +51,7 @@ window.SITE = {
       architecture: [
         ["ui/", "React + TypeScript GUI shared by both shells; runs in demo mode in a browser"],
         ["engine/", "Rust engine: scan, rules, questions, convert, AI, toolchains, build, GPTK"],
-        ["engine/src/rules/", "674 rules in 9 TOML tables: win32, directx, macos, linux, bsd, posix, languages, engines, build"],
+        ["engine/src/rules/", "705 rules in 9 TOML tables: win32, directx, macos, linux, bsd, posix, languages, engines, build"],
         ["apps/tauri/", "Main app: Tauri 2 with the engine linked in-process, one native executable per OS"],
         ["apps/electron/", "Backup app: Electron, engine runs as a sidecar CLI"],
         [".github/workflows/build.yml", "Builds every platform and publishes releases on tags"]
