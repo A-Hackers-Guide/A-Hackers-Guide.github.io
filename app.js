@@ -46,22 +46,14 @@
   /* ---------------- build DOM from data ---------------- */
   // hero title letters
   const h1 = $(".glitch");
-  h1.innerHTML = [...h1.textContent].map((c, i) =>
-    c === " " ? " " : `<span class="ch" style="transition-delay:${0.25 + i * 0.045}s">${esc(c)}</span>`).join("");
+  // letters are grouped per word so a line can only wrap between words
+  let li = 0;
+  h1.innerHTML = h1.textContent.split(" ").map((w) =>
+    `<span class="word">${[...w].map((c) => `<span class="ch" style="transition-delay:${0.25 + li++ * 0.045}s">${esc(c)}</span>`).join("")}</span>`).join(" ");
 
-  // orbit planets
+  // project globe: icons on a sphere, positioned by the globe code further down
   const orbit = $("#orbit");
-  S.repos.forEach((r, i) => {
-    const a = (i / S.repos.length) * Math.PI * 2;
-    const p = document.createElement("span");
-    p.className = "planet";
-    p.style.setProperty("--c", r.accent);
-    p.style.transform = `translate(${Math.cos(a) * 50}%, ${Math.sin(a) * 50}%)`;
-    p.style.left = `${50 + Math.cos(a) * 50}%`;
-    p.style.top = `${50 + Math.sin(a) * 50}%`;
-    p.textContent = r.icon;
-    orbit.appendChild(p);
-  });
+  orbit.innerHTML = S.repos.map((r) => `<button class="planet" data-goto="${r.id}" style="--c:${r.accent}" aria-label="${esc(r.name)}"><span>${esc(r.icon)}</span><em>${esc(r.name)}</em></button>`).join("");
 
   // manifesto words
   const manifesto = "I make software that runs anywhere. Mac, Windows, Linux and beyond. If a tool only exists on one platform, I want to port it. If a guide is confusing, I want to rewrite it into a better one.";
@@ -77,7 +69,7 @@
     [S.repos.length, "", "featured projects"],
     [Object.keys(allLangs).length, "", "programming languages"],
     [Math.round(totalBytes / 1024), " KB", "of source code"],
-    [599, "", "porting rules in Crossfire"],
+    [674, "", "porting rules in Crossfire"],
     [4, "", "desktop OSes targeted"]
   ];
   $("#stats").innerHTML = stats.map(([n, suf, l]) => `<div class="stat reveal"><b data-count="${n}" data-suffix="${suf}">0${suf}</b><span>${l}</span></div>`).join("");
@@ -261,12 +253,14 @@
   $("#menu-list").innerHTML = menuItems.map(([t, h], i) => `<li><a href="${h}" data-mi="${i}" style="transition-delay:${0.15 + i * 0.04}s">${esc(t)}</a></li>`).join("");
 
   /* ---------------- boot sequence ---------------- */
+  // fake kernel timestamps that keep counting up however many repos there are
+  const stamp = (i) => `[${(0.05 + i * 0.009).toFixed(3).padStart(7)}]`;
   const bootLines = [
-    "[ 0.000] A-Hackers-Guide kernel loading…",
-    `[ 0.041] mounting github.com/${S.user}`,
-    ...S.repos.map((r, i) => `[ 0.${pad(10 + i * 9)}] loaded ${r.repo} <span class="ok">ok</span>`),
-    `[ 0.090] ${Object.keys(allLangs).length} languages · ${(totalBytes / 1048576).toFixed(2)} MB of code`,
-    "[ 0.099] starting interface <span class=\"ok\">ready</span>"
+    "[  0.000] A-Hackers-Guide kernel loading…",
+    `[  0.041] mounting github.com/${S.user}`,
+    ...S.repos.map((r, i) => `${stamp(i)} loaded ${r.repo} <span class="ok">ok</span>`),
+    `${stamp(S.repos.length)} ${Object.keys(allLangs).length} languages · ${(totalBytes / 1048576).toFixed(2)} MB of code`,
+    `${stamp(S.repos.length + 1)} starting interface <span class="ok">ready</span>`
   ];
   const boot = $("#boot"), bootLog = $("#boot-log"), bootBar = $(".boot-bar span");
   let seenBoot = false;
@@ -915,6 +909,55 @@
   }
 
 
+
+
+  /* ---------------- round nine: drag-to-spin project globe ---------------- */
+  (() => {
+    const planets = $$(".planet", orbit), n = planets.length;
+    // spread points evenly over a sphere (Fibonacci lattice)
+    const pts = planets.map((_, i) => {
+      const y = 1 - (i + 0.5) * (2 / n), rr = Math.sqrt(1 - y * y), t = i * Math.PI * (3 - Math.sqrt(5));
+      return [Math.cos(t) * rr, y, Math.sin(t) * rr];
+    });
+    const idle = reduce ? 0 : 0.0035;
+    let ax = -0.25, ay = 0, vx = 0, vy = idle, drag = null, moved = 0;
+    const hero = $(".hero");
+    const draw = () => {
+      const R = orbit.clientWidth * 0.42, cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay);
+      pts.forEach(([x, y, z], i) => {
+        const x1 = x * cy + z * sy, z1 = -x * sy + z * cy;
+        const y2 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;
+        const s = 0.55 + (z2 + 1) * 0.35, p = planets[i];
+        p.style.transform = `translate(-50%, -50%) translate3d(${x1 * R}px, ${y2 * R}px, 0) scale(${s})`;
+        p.style.opacity = (0.25 + (z2 + 1) * 0.375).toFixed(3);
+        p.style.zIndex = Math.round((z2 + 1) * 50);
+      });
+    };
+    const loop = () => {
+      if (!drag) { ay += vy; ax += vx; vx *= 0.95; vy += (idle - vy) * 0.02; }
+      ax = Math.max(-1.2, Math.min(1.2, ax));
+      if (scrollY < innerHeight * 1.1 && !document.hidden) draw();
+      requestAnimationFrame(loop);
+    };
+    draw(); requestAnimationFrame(loop);
+    addEventListener("resize", draw);
+    hero.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("a, .btn")) return;
+      if (e.pointerType === "mouse") e.preventDefault(); // dragging spins the globe instead of selecting text
+      drag = { x: e.clientX, y: e.clientY }; moved = 0;
+    });
+    addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      moved += Math.abs(dx) + Math.abs(dy);
+      vy = dx * 0.006; vx = -dy * 0.004; ay += vy; ax += vx;
+      drag = { x: e.clientX, y: e.clientY };
+      hero.classList.add("spinning");
+    });
+    addEventListener("pointerup", () => { drag = null; hero.classList.remove("spinning"); });
+    // a drag that ends on a planet shouldn't count as a click
+    orbit.addEventListener("click", (e) => { if (moved > 8) { e.stopPropagation(); e.preventDefault(); } moved = 0; }, true);
+  })();
 
   /* ---------------- round seven: a little shell ---------------- */
   const shell = $("#shell"), shOut = $("#sh-out"), shIn = $("#sh-in");

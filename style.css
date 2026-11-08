@@ -656,3 +656,27 @@ body.matrix .glitch { background: linear-gradient(120deg, #22ff88, #00ffcc); -we
 .sh-ps { color: #a78bfa; margin-right: 8px; white-space: nowrap; }
 .sh-line { display: flex; align-items: center; padding: 8px 16px 14px; }
 #sh-in { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #fff; font: inherit; caret-color: #a78bfa; }
+
+
+/* ---------- round nine: project globe ---------- */
+.orbit { animation: none; border: 0; pointer-events: none; }
+.orbit::before { inset: 8%; border: 1px dashed var(--line); animation: spin 90s linear infinite; }
+.orbit .planet {
+  position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: 0; border-radius: 14px;
+  display: grid; place-items: center; pointer-events: auto; cursor: pointer; animation: none;
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--c); font-family: var(--mono); font-size: .8rem;
+  box-shadow: 0 0 30px -8px var(--c); will-change: transform, opacity; transition: border-color .3s, box-shadow .3s;
+}
+:root[data-theme="light"] .orbit .planet { color: color-mix(in srgb, var(--c) 65%, #000); }
+.orbit .planet:hover { border-color: var(--c); box-shadow: 0 0 40px -4px var(--c); }
+.orbit .planet em {
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -4px); white-space: nowrap;
+  font-style: normal; font-family: var(--sans); font-size: .78rem; padding: 4px 10px; border-radius: 999px;
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--text); opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s var(--ease);
+}
+.orbit .planet:hover em, .orbit .planet:focus-visible em { opacity: 1; transform: translate(-50%, 0); }
+.hero.spinning { cursor: grabbing; }
+@media (max-width: 760px) { .orbit .planet { width: 36px; height: 36px; border-radius: 11px; font-size: .7rem; } }
+
+.glitch .word { display: inline-block; white-space: nowrap; background: inherit; -webkit-background-clip: text; background-clip: text; color: transparent; }

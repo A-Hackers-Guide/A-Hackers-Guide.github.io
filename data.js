@@ -13,13 +13,14 @@ window.SITE = {
       accent: "#ff5c39",
       icon: "⇄",
       created: "2026-10-25",
+      live: "https://a-hackers-guide.github.io/crossfire/",
       kicker: "Port any project between Windows, macOS, Linux and FreeBSD",
       summary: "Point it at your source code. It maps every OS-specific call, asks a few questions, writes a portable version, and builds it.",
-      stats: [["599", "porting rules"], ["4", "target OSes"], ["129", "files"], ["3", "ways to run"]],
+      stats: [["674", "porting rules"], ["4", "target OSes"], ["50", "promises in the README"], ["3", "ways to run"]],
       langs: { Rust: 324868, TypeScript: 92365, CSS: 27806, "C++": 13543, C: 10247, Python: 9253, JavaScript: 4298, "C#": 4160, HTML: 362 },
       pipeline: [
         ["Source", "Pick a project folder. Crossfire detects which OS it was written for."],
-        ["Analyze", "Every file is scanned against 599 rules. You get a portability score, a heat map, and a suggested fix for each finding."],
+        ["Analyze", "Every file is scanned against 674 rules in 9 tables. You get a portability score, a heat map, and a suggested fix for each finding."],
         ["Targets", "Choose any of Windows, macOS, Linux and FreeBSD."],
         ["Configure", "Questions based on what was found: porting strategy, graphics and audio backends, build system, C++ standard, packaging, CI, AI help."],
         ["Convert", "Writes a new copy and never touches the original: rule-based rewrites, a portability shim, CMake, CI workflow and a report."],
@@ -34,6 +35,10 @@ window.SITE = {
         ["Mechanical rewrites", "Sleep → portable sleep, QueryPerformanceCounter → std::chrono, __declspec(align) → alignas, path separators, include guards"],
         ["Generated output", "crossfire/cf_platform.h shim, CMakeLists.txt with presets, packaging scripts, and a GitHub Actions workflow for all four OSes"],
         ["Optional AI pass", "Claude, or any OpenAI-compatible endpoint including local models, for the hardest files, with diffs and confidence scores"],
+        ["AI confidence gate", "AI diffs below a configurable threshold are refused, not applied"],
+        ["Build systems", "Rules for CMake, Meson, MSBuild, Makefile, Cargo and npm"],
+        ["Safety", "Never writes inside the source tree; no network calls outside the opt-in AI pass; API key held only in memory"],
+        ["Quality gates", "cargo fmt, clippy with warnings as errors, cargo-deny, oxlint, tsc and a 3-OS test matrix on every PR"],
         ["Report", "CROSSFIRE_REPORT.md lists every change and what needs a human to look at"]
       ],
       terminal: [
@@ -46,7 +51,7 @@ window.SITE = {
       architecture: [
         ["ui/", "React + TypeScript GUI shared by both shells; runs in demo mode in a browser"],
         ["engine/", "Rust engine: scan, rules, questions, convert, AI, toolchains, build, GPTK"],
-        ["engine/src/rules/", "599 rules in TOML tables"],
+        ["engine/src/rules/", "674 rules in 9 TOML tables: win32, directx, macos, linux, bsd, posix, languages, engines, build"],
         ["apps/tauri/", "Main app: Tauri 2 with the engine linked in-process, one native executable per OS"],
         ["apps/electron/", "Backup app: Electron, engine runs as a sidecar CLI"],
         [".github/workflows/build.yml", "Builds every platform and publishes releases on tags"]
@@ -912,53 +917,55 @@ window.SITE = {
       accent: "#fb923c",
       icon: "⌕",
       created: "2026-09-13",
+      live: "https://a-hackers-guide.github.io/digital-archaeologist/",
       kicker: "Extension-independent binary archaeology for any file",
-      summary: "One read-only CLI for files, disk images, archives, firmware blobs, databases, executables and unknown data. It never mounts, modifies or repairs your media.",
-      stats: [["20+", "capabilities"], ["3", "native builds"], ["0", "writes to evidence"], ["v2.0.1", "release"]],
+      summary: "Identifies what a file really is from its bytes, not its name: files, disk images, archives, firmware, databases, executables and unknown data. Read-only on the input, with zero third-party runtime dependencies.",
+      stats: [["70+", "formats"], ["14", "carvable formats"], ["50", "promises in the README"], ["0", "runtime deps"]],
       langs: { "C++": 21903, Shell: 990, CMake: 736, PowerShell: 556, Batchfile: 441 },
       pipeline: [
-        ["Identify", "Magic and signature detection that ignores file extensions."],
-        ["Fingerprint", "SHA-256 integrity hashes."],
-        ["Measure", "Entropy and printable-byte analysis."],
-        ["Dig", "Strings extraction, hex inspection, ASCII and hex searching."],
-        ["Partitions", "MBR and GPT evidence inspection."],
-        ["Report", "Human-readable forensic reports or JSON with evidence and confidence."]
+        ["Identify", "Magic-number detection for 70+ formats, independent of the file extension."],
+        ["Score", "Every detection gets weighted evidence and a confidence, not a flat yes or no."],
+        ["Fingerprint", "Streaming SHA-256 and CRC-32 over the whole file, even files larger than RAM."],
+        ["Dig", "Entropy, ASCII + UTF-16LE strings, hex dumps, and substring or byte-pattern search with every offset."],
+        ["Timeline", "Filesystem mtime plus timestamps inside ZIP, PE, GZIP and PDF files."],
+        ["Carve", "Optionally pull embedded streams out of unknown blobs by signature into a separate folder."]
       ],
       features: [
-        ["Archives", "ZIP, GZIP, BZIP2, XZ, 7z and RAR detection"],
-        ["Executables", "PE, ELF and Mach-O-adjacent identification"],
-        ["Media & data", "PDF, image, audio and database identification with MIME-style classification"],
-        ["Directory scans", "Recursive inventory of a whole evidence folder"],
-        ["Unknown formats", "A research mode plus OS-focused unknown modes like --unknown=macos"],
-        ["Transport", "Base64 mode for moving data around"],
-        ["Safety model", "No kernel driver is silently installed; encryption support is metadata and recovery-path analysis only"],
-        ["Builds", "Windows native, macOS (Xcode + Command Line Tools) and Linux"]
+        ["Multi-detection", "One file can match several signatures, e.g. ZIP + CRX or Mach-O FAT + Java class, each reported"],
+        ["ISOBMFF dispatcher", "One ftyp check resolves MP4, M4A, MOV, HEIF/HEIC, AVIF, 3GP and Canon CR3"],
+        ["Carving", "ZIP, GZIP, PNG, JPEG, PDF, ELF, PE, 7z, RAR, BZIP2, XZ, Ogg, Matroska and SQLite; nothing decompressed or executed"],
+        ["Containers", "Lists what's inside ZIP, TAR and GZIP files"],
+        ["Partitions", "MBR and GPT evidence for disk images"],
+        ["Directory scans", "--scan lists path, format, size and SHA-256 for every file"],
+        ["Hard limits", "No shell execution, no network calls, and a --max-size cap on in-memory analysis (default 2 GiB)"],
+        ["Tested hard", "NIST SHA-256 vectors, CRC-32 vectors, carver round-trips, ASan + UBSan, and libFuzzer on every PR"]
       ],
       terminal: [
         "$ archaeologist suspicious.bin",
         "$ archaeologist --json suspicious.bin",
-        "$ archaeologist --hash --entropy --strings suspicious.bin",
+        "$ archaeologist --hash --crc32 --entropy --strings suspicious.bin",
         "$ archaeologist --partitions disk.img",
-        "$ archaeologist --scan ./evidence",
-        "$ archaeologist --unknown=macos mystery.img"
+        "$ archaeologist --timeline report.pdf",
+        "$ archaeologist --carve ./out firmware.img",
+        "$ archaeologist --scan ./evidence"
       ],
       architecture: [
-        ["docs/FEATURES.md", "Feature catalog"],
-        ["docs/CLI.md", "Command reference"],
-        ["docs/ARCHITECTURE.md", "Internals"],
-        ["docs/FORENSICS.md", "Evidence workflow"],
-        ["docs/UNKNOWN_FORMATS.md", "Unknown-format research"],
-        ["macos/", "Xcode project that checks for Command Line Tools first"]
+        ["tests/", "Detection, SHA-256, CRC-32, Base64, strings, carver and timeline tests"],
+        ["Fuzzing", "libFuzzer targets on analyze_bytes and carve, run under ASan + UBSan"],
+        ["macos/", "An Xcode project alongside the CMake build"],
+        ["Docs site", "Full CLI reference, format catalog and JSON schema"],
+        ["CMake", "One tree builds natively on Linux, macOS and Windows"]
       ],
       downloads: [
         ["Linux", "archaeologist-linux"],
         ["macOS", "archaeologist-macos"],
-        ["Windows", "archaeologist-windows.exe"]
+        ["Windows", "archaeologist-windows.exe"],
+        ["From source", "CMake 3.20+ and a C++17 compiler"]
       ],
       limits: [
-        "Intentionally read-only: it doesn't mount, modify or repair media.",
-        "Experimental filesystem-driver directories are documentation only.",
-        "No unrestricted password cracking or security bypass."
+        "Read-only on the input: it never mounts, modifies or repairs media.",
+        "Carving is opt-in and writes only to the folder you give it; carved lengths are conservative estimates.",
+        "Structural analysis is capped by --max-size, though SHA-256 still covers the whole file."
       ],
       license: "MIT",
       release: "v2.0.1"
