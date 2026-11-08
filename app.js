@@ -9,6 +9,7 @@
   const gh = (r) => `https://github.com/${S.user}/${r.repo}`;
   const pad = (n) => String(n).padStart(2, "0");
   const LANG_COLORS = {
+    Go: "#00ADD8", "Objective-C": "#438eff", "Objective-C++": "#6866fb", Ruby: "#701516",
     Rust: "#dea584", TypeScript: "#3178c6", CSS: "#a46bff", "C++": "#f34b7d", C: "#8a8a8a", Python: "#3572A5",
     JavaScript: "#f1e05a", "C#": "#178600", HTML: "#e34c26", Shell: "#89e051", Swift: "#F05138", Makefile: "#427819",
     CMake: "#DA3434", PowerShell: "#4fa3ff", Batchfile: "#C1F12E", Kotlin: "#A97BFF", ANTLR: "#9DC3FF",
@@ -69,7 +70,8 @@
 
   // stats
   const allLangs = {};
-  S.repos.forEach((r) => Object.entries(r.langs).forEach(([k, v]) => (allLangs[k] = (allLangs[k] || 0) + v)));
+  // forks are left out: most of their code is upstream
+  S.repos.filter((r) => !r.fork).forEach((r) => Object.entries(r.langs).forEach(([k, v]) => (allLangs[k] = (allLangs[k] || 0) + v)));
   const totalBytes = Object.values(allLangs).reduce((a, b) => a + b, 0);
   const stats = [
     [S.repos.length, "", "featured projects"],

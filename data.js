@@ -68,6 +68,65 @@ window.SITE = {
       release: "v0.1.0"
     },
     {
+      id: "sys1",
+      name: "sys1",
+      repo: "sys1",
+      accent: "#818cf8",
+      icon: "☁",
+      created: "2026-10-31",
+      live: "https://a-hackers-guide.github.io/sys1/",
+      kicker: "Pool the spare power of every computer into one cloud",
+      summary: "Most computers sit idle most of the day. sys1 pools their spare CPU, memory, disk and GPU into one place and runs websites, media servers, backups, AI models and game servers on it. Free, open source and public domain.",
+      stats: [["21+", "OS/CPU builds"], ["2", "apps: sys0 + sys1"], ["~15 s", "failover"], ["v0.6", "today"]],
+      langs: { Go: 513573, JavaScript: 448536, HTML: 43754, Kotlin: 14347, CSS: 13667, Shell: 10150, Swift: 6256, Dockerfile: 2354, PowerShell: 2190, Makefile: 719 },
+      pipeline: [
+        ["Start a node", "Run sys1 on the hub machine. The dashboard opens in your browser, and that machine is already in the pool."],
+        ["Join machines", "Install sys0 on each machine and paste a join code: one for your own machines, one to share with other people."],
+        ["Lowest priority", "sys0 runs at the lowest priority each OS offers, so your own apps and games always come first."],
+        ["Place work", "The node puts work on the best machine by spare CPU, memory and GPU, skipping busy machines and laptops on battery."],
+        ["Survive failures", "Crashed apps restart; after 5 crashes in a row they move to another machine and resume from a checkpoint."],
+        ["Deploy", "Pick something from the Marketplace: Jellyfin, Plex, Ollama, Syncthing, websites, any container."]
+      ],
+      features: [
+        ["Priority on every OS", "nice 19 + idle I/O on Linux, background QoS on macOS, IDLE_PRIORITY_CLASS on Windows, minimum container CPU weight"],
+        ["Pooled storage", "Spare disk on every machine becomes one encrypted store; app data is snapshotted every minute and moves with the app"],
+        ["Fast save", "An fsync'd, checksummed write-ahead journal: pull the plug and nothing acknowledged is lost"],
+        ["AI across machines", "Split one llama.cpp model across several machines; schedule by free GPU memory on NVIDIA, AMD, Intel and Apple"],
+        ["Clusters", "Run 3 nodes and any one can fail; join codes carry every address so machines join from anywhere"],
+        ["VMs and desktops", "Whole operating systems as apps with QEMU, screens in the browser, and an experimental Moonlight game host"],
+        ["Safe for strangers", "Shared machines only run hardened, sandboxed containers; packages must be Ed25519-signed by a key you trust"],
+        ["Phones too", "An Android app that lends only while charging and idle, a Magisk module, and a sideloaded iPhone/iPad app"]
+      ],
+      terminal: [
+        "$ brew install a-hackers-guide/tap/sys1",
+        "$ curl -fsSL https://a-hackers-guide.github.io/sys1/install.sh | sh",
+        "> scoop bucket add a-hackers-guide https://github.com/A-Hackers-Guide/scoop-bucket",
+        "> scoop install a-hackers-guide/sys1",
+        "$ sys1",
+        "$ sys0 join sys1-join:eyJh…"
+      ],
+      architecture: [
+        ["sys0 (client)", "A friendly installer, then it disappears into the background on every machine that lends power"],
+        ["sys1 (node)", "The hub: scheduler, crash-safe journal, marketplace and a full dashboard"],
+        ["Link", "TLS 1.3 with a pinned certificate between every client and the node"],
+        ["homebrew-tap", "Homebrew formulae: brew install a-hackers-guide/tap/sys1"],
+        ["scoop-bucket", "Scoop manifests, rewritten hourly from each release's SHA-256 checksums"],
+        ["docs/", "Getting started, architecture, reliability, storage, security model, protocol, roadmap"]
+      ],
+      downloads: [
+        ["Installers", "macOS .pkg, Windows .msi, .deb, .rpm, .apk, Arch, AppImage, snap, FreeBSD .pkg, OpenWrt .ipk"],
+        ["Archives", "21 OS/CPU combinations: Windows, macOS, Linux, the BSDs, Solaris, illumos, AIX, Android"],
+        ["From source", "Go 1.26+: go build ./cmd/sys0 && go build ./cmd/sys1"]
+      ],
+      limits: [
+        "Automatic updates, crash reports and more integrations are still on the roadmap.",
+        "Native programs run only on machines whose owner said “this is mine”; shared machines get sandboxed containers only.",
+        "The iPhone and iPad app is sideloaded or a jailbreak package; it will never be in the App Store."
+      ],
+      license: "Unlicense",
+      release: "v0.6"
+    },
+    {
       id: "ocmp",
       name: "OpenCore Modernity Patcher",
       repo: "OpenCore-Modernity-Patcher",
@@ -125,6 +184,125 @@ window.SITE = {
       ],
       license: "See repo",
       release: "v0.1.0-beta.2"
+    },
+    {
+      id: "fruitgpt",
+      name: "FruitGPT",
+      repo: "FruitGPT",
+      accent: "#fb7185",
+      icon: "❋",
+      created: "2026-11-01",
+      live: "https://a-hackers-guide.github.io/FruitGPT/",
+      kicker: "Chat with a real fruit fly brain, and edit it",
+      summary: "A desktop chat app that runs complete wiring diagrams of real brains on your computer and translates what their neurons do into English. There is no language model: nothing is generated or made up.",
+      stats: [["165,122", "neurons"], ["25.6M", "connections"], ["3", "brains"], ["0", "language models"]],
+      langs: { JavaScript: 84567, Python: 16876, HTML: 16802, CSS: 9502, Shell: 2037 },
+      pipeline: [
+        ["You type", "Sense words drive a real receptor: “shadow” → looming detectors, “smell” → the DA1 channel, “touch” → bristles."],
+        ["Or it hears you", "Anything else reaches the fly as a sound near its antennae, the way a real fly would sense your voice."],
+        ["The brain runs", "300 ms of the full 165,122-neuron leaky integrate-and-fire network, on your CPU."],
+        ["Fly → English", "It reports how many neurons answered, in which brain regions, and which command neurons fired."],
+        ["Behaviour", "DNp01 Giant Fiber = escape jump, MDN = walk backward, and so on."],
+        ["Lives on", "The fly keeps running in the background; the header shows whether it's resting or escaping."]
+      ],
+      features: [
+        ["Three brains", "Male fruit fly whole CNS (MaleCNS v1.0), female fly whole brain (FlyWire v783), and the worm C. elegans (279 neurons)"],
+        ["Brain Editor", "Change the brain while it runs and watch the result in a 3D view of every neuron"],
+        ["Sections", "Take out whole parts like the optic lobes, mushroom bodies, nerve cord or one half"],
+        ["Neurons & wires", "Silence a cell type, force it on, flip it from go to stop, or cut the wires between groups (LPLC2 → DNp01)"],
+        ["Presets", "Edits are temporary unless saved; built-ins include “No escape: Giant Fiber silenced”"],
+        ["Your own brains", "Pack any connectome into one .fbrain file and load it with Add a brain file…"],
+        ["Online answers", "General questions can look up Wikipedia, clearly labelled as not coming from the fly"],
+        ["Gentle", "The background fly uses at most ~30% of one core, and nothing while minimised"]
+      ],
+      terminal: [
+        "$ chmod +x FruitGPT-*-linux-x86_64.AppImage",
+        "$ ./FruitGPT-*-linux-x86_64.AppImage",
+        "# build a brain file from any connectome",
+        "$ node tools/pack_brain.js data/brains/worm worm.fbrain"
+      ],
+      architecture: [
+        ["Model", "Leaky integrate-and-fire neurons after Shiu et al. 2024 (Nature), with spike-frequency adaptation"],
+        ["MaleCNS fly", "0.15 mV per synapse; 642,932 Kenyon-cell-to-Kenyon-cell synapses left out (kept in the data)"],
+        ["FlyWire fly", "0.275 mV per synapse, Shiu et al.'s original value"],
+        ["Worm", "1.5 mV per synapse, gap junctions as weak excitatory links: “nasty thing at the nose → reverse”"],
+        ["tools/", "Fetch and convert MaleCNS (1.1 GB), FlyWire (850 MB) and worm data"],
+        ["Release", "Pushing a v* tag builds all three apps in GitHub Actions"]
+      ],
+      downloads: [
+        ["Linux", "FruitGPT-*-linux-x86_64.AppImage"],
+        ["macOS", ".dmg for Apple silicon or Intel"],
+        ["Windows", "Portable .exe, no install"],
+        ["Needs", "About 1 GB of free RAM; no GPU, no account, works offline"]
+      ],
+      limits: [
+        "Not modelled: neuromodulators, neuron shapes, a body, and learning.",
+        "The worm model is rough: worm neurons mostly use graded signals, not spikes.",
+        "Not notarized or code-signed yet, so macOS and Windows warn on first launch.",
+        "Brain data is CC BY 4.0 from Janelia, FlyWire and OpenWorm; FruitGPT isn't affiliated with any of them."
+      ],
+      license: "MIT · data CC BY 4.0",
+      release: "v0.2.0"
+    },
+    {
+      id: "fruitos",
+      name: "FruitOS",
+      repo: "FruitOS",
+      accent: "#a3e635",
+      icon: "◉",
+      created: "2026-10-31",
+      live: "https://a-hackers-guide.github.io/FruitOS/",
+      kicker: "A live Linux OS whose star is a real fruit fly brain",
+      summary: "FruitOS boots straight into a 3D learning app that runs the complete wiring diagram of a male fruit fly's central nervous system. The fly's own command neurons decide what it does. Made for doctors, students and anyone curious about brains.",
+      stats: [["124M", "synapses"], ["9", "guided lessons"], ["0", "internet needed"], ["v0.1.0", "ISO"]],
+      langs: { Python: 58248, HTML: 15303, JavaScript: 13825, CSS: 6427, Shell: 4424 },
+      pipeline: [
+        ["Boot", "Arch Linux (archiso) with GRUB on UEFI; legacy-BIOS PCs fall back to syslinux."],
+        ["See it in 3D", "Every neuron drawn where its cell body sits, coloured by brain part. Click a dot to inspect it."],
+        ["Watch it live", "The brain runs continuously and neurons light up as they fire."],
+        ["Poke a sense", "Press Shadow: looming detectors fire, drive the Giant Fiber, and the fly escapes. Nothing is scripted."],
+        ["Talk to it", "Every answer is computed from the connectome or a fresh simulation, never invented."],
+        ["Learn", "9 lessons with quizzes whose answers are calculated from the brain on screen."]
+      ],
+      features: [
+        ["DNp01 Giant Fiber", "Escape jump and take-off (von Reyn et al. 2014)"],
+        ["MDN", "The “moonwalker”: walk backward (Bidaye et al. 2014)"],
+        ["DNa01, DNa02", "Steer left and right (Rayshubskiy et al. 2020; Yang et al. 2023)"],
+        ["DNp09", "Walk forward (Bidaye et al. 2020)"],
+        ["Honest gaps", "When other command neurons fire, the fly says so, and says when science doesn't know what they do"],
+        ["Light on hardware", "At most half a CPU core, capped by systemd at 1 core and 2 GB, and it pauses after 60 s with nobody watching"],
+        ["Website", "Spin all 165,122 neurons in your browser on the project site"],
+        ["No ISO needed", "Run just the app on macOS, Linux or Windows with Python"]
+      ],
+      terminal: [
+        "$ sha256sum -c fruitos-0.1.0-x86_64.iso.sha256",
+        "# or run just the app:",
+        "$ pip install numpy scipy pyarrow pandas",
+        "$ bash tools/fetch_data.sh raw",
+        "$ python3 tools/prepare_data.py --raw raw --out data",
+        "$ cd app && FRUITOS_DATA=../data python3 -m fruitbrain.server"
+      ],
+      architecture: [
+        ["app/fruitbrain/", "Brain engine, live behaviour loop, the fly's voice, lessons, local web server"],
+        ["app/web/", "3D learning interface with vendored three.js, works offline"],
+        ["tools/", "Download and convert the connectome (build time only)"],
+        ["iso/", "archiso profile: packages, GRUB/syslinux branding, systemd service, kiosk session"],
+        ["tests/", "Engine tests on a tiny synthetic brain"],
+        [".github/workflows", "Tests, tag → ISO → Release, and the Pages website"]
+      ],
+      downloads: [
+        ["ISO", "fruitos-0.1.0-x86_64.iso plus a SHA-256 checksum"],
+        ["Minimum", "x86_64 with 2 cores and 4 GB RAM; any graphics, software rendering works"],
+        ["Recommended", "4 cores, 8 GB RAM, any GPU with OpenGL"]
+      ],
+      limits: [
+        "Turn Secure Boot off on a real PC; the boot files aren't signed for it.",
+        "Not modelled: neuromodulators, gap junctions, neuron shapes, a body, and learning.",
+        "Sight starts at the looming detectors; the photoreceptor → lamina step can't be represented by this neuron model.",
+        "The fly lives in slow motion: about 1 second of brain time every 7 seconds on a laptop core."
+      ],
+      license: "MIT · data CC BY 4.0",
+      release: "v0.1.0"
     },
     {
       id: "wiithemer",
@@ -243,6 +421,61 @@ window.SITE = {
       release: "Live"
     },
     {
+      id: "questclassic",
+      name: "QuestClassic",
+      repo: "QuestClassic",
+      accent: "#2dd4bf",
+      icon: "⬡",
+      created: "2026-11-07",
+      kicker: "A sideloadable companion app for Meta Quest 2 and newer",
+      summary: "A nostalgic Oculus-style launcher, a programmable AI companion, self-diagnostics that buzz your controllers in Morse-like patterns, a build-your-own HUD and an AR semicircle menu. It survives every Meta update and updates itself.",
+      stats: [["16", "HUD widgets"], ["3", "AI backends"], ["1", "host it talks to"], ["v0.2.0", "release"]],
+      langs: { Kotlin: 199822, Python: 33751, Makefile: 2633 },
+      pipeline: [
+        ["Developer Mode", "Enable Meta's official developer flag. No account unlock, no bootloader unlock."],
+        ["USB debugging", "Settings → System → Developer: turn on the USB connection dialog and ADB."],
+        ["Sideload", "adb install the APK from Releases."],
+        ["Open it", "Find it under Library → Unknown Sources on the headset."],
+        ["Survives OTAs", "User-installed APKs aren't wiped by Meta's A/B updates, so the app and its data stay."],
+        ["Self-update", "Once per launch it checks this repo's GitHub Releases and offers newer APKs through PackageInstaller."]
+      ],
+      features: [
+        ["Launcher", "A retro Oculus grid of every launchable app, tagged VR (teal) or 2D (amber)"],
+        ["Diagnostics", "Battery, storage, RAM, network, fingerprint and performance tests; failures buzz the controllers in a code you can look up"],
+        ["AI Companion", "Name it, pick Claude, OpenAI or local Ollama, use your own key and system prompt; the key stays on-device"],
+        ["Build Tools", "A minimizable HUD built from 16 widgets you switch on and off"],
+        ["About", "What your headset really is: model, HorizonOS branch, codename, SoC and both security patch levels"],
+        ["AR Home", "A preview of the 90° semicircular hand menu"],
+        ["Root panels", "Strip Meta, firmware dump, boot animation and more: dry-run on stock, active only on already-rooted devices"],
+        ["Privacy", "It phones home to exactly one host: api.github.com, for updates"]
+      ],
+      terminal: [
+        "$ adb install QuestClassic-release.apk",
+        "# or build it yourself (JDK 17 + Android SDK)",
+        "$ ./gradlew :app:assembleDebug",
+        "$ adb install app/build/outputs/apk/debug/app-debug.apk"
+      ],
+      architecture: [
+        ["app/", "Android app source in Kotlin + Compose"],
+        ["tools/", "Zero-dependency Python tools for reading Meta OTAs you obtained yourself"],
+        ["docs/", "Architecture, buzz patterns, AR path, widget SDK, AI backends, achievements"],
+        ["build.yml", "Builds a debug APK on every push and PR"],
+        ["release.yml", "Builds a signed or unsigned release APK on every v* tag"]
+      ],
+      downloads: [
+        ["Headset", "Meta Quest 2 or newer"],
+        ["File", "app-release-unsigned.apk from Releases"]
+      ],
+      limits: [
+        "A stock Quest can't replace the boot animation or strip Meta apps; those panels need a device rooted by other means.",
+        "It includes no root exploit, and won't.",
+        "The boot menu, signing keys, signature permissions and kernel modules are off-limits even with root.",
+        "It ships only original code: no Meta firmware, OTAs or decompiled APKs."
+      ],
+      license: "MIT",
+      release: "v0.2.0"
+    },
+    {
       id: "numberlock",
       name: "NumberLock",
       repo: "NumberLock",
@@ -294,6 +527,110 @@ window.SITE = {
       ],
       license: "See repo",
       release: "v1.0.0"
+    },
+    {
+      id: "quoder",
+      name: "Quoder",
+      repo: "Quoder",
+      accent: "#e879f9",
+      icon: "⌘",
+      created: "2026-11-03",
+      kicker: "Let a model on your own computers use your Mac",
+      summary: "A native macOS app that gives a locally hosted model the terminal, your files and the screen: reading it, clicking and typing. No cloud, no account. It talks to any OpenAI-compatible server such as llama.cpp's llama-server.",
+      stats: [["12", "tools"], ["3", "safety layers"], ["0", "cloud"], ["macOS 15+", "Apple Silicon"]],
+      langs: { Swift: 64819, Shell: 462 },
+      pipeline: [
+        ["Connect", "Quoder opens an SSH tunnel to the computer running the model, so the server only listens on 127.0.0.1."],
+        ["Ask", "Type a task. The model picks tools: run a command, edit a file, read the screen, click."],
+        ["Self-check", "Before any action that changes something, the model gets a second look and confirms or corrects it."],
+        ["Hard stop", "Commands that could wipe the Mac always ask you first, whatever the model decided."],
+        ["Act", "Every action shows as a card you can open to see exactly what ran and what came back."],
+        ["Stop", "A Stop button ends it at any time."]
+      ],
+      features: [
+        ["run_command", "Runs any zsh command and returns its output"],
+        ["Files", "read_file, write_file, edit_file and list_directory"],
+        ["screen_text", "Reads every piece of text on screen with its position using Apple Vision OCR, for models that can't see images"],
+        ["ui_elements", "Lists the frontmost app's buttons, fields and menus with positions via Accessibility"],
+        ["Hands", "click, type_text, press_keys, scroll and open: uses the Mac like a person would"],
+        ["Disaster list", "Erasing disks, rm -rf / or ~, mkfs, dd to a disk and disabling SIP always need your OK"],
+        ["Built for", "Qwen2.5 Coder 32B split across GPUs on several machines with llama.cpp's RPC backend"],
+        ["Headless", "--run executes one task without a window and prints every step"]
+      ],
+      terminal: [
+        "$ git clone https://github.com/A-Hackers-Guide/Quoder.git",
+        "$ cd Quoder",
+        "$ packaging/build-app.sh",
+        "$ ~/Applications/Quoder.app/Contents/MacOS/Quoder --run \"How many files are in my Downloads folder?\""
+      ],
+      architecture: [
+        ["packaging/build-app.sh", "Builds and signs ~/Applications/Quoder.app"],
+        ["docs/SERVER.md", "Running Qwen2.5 Coder 32B across a Windows PC's GPUs and a Mac's GPU, and what didn't work"],
+        ["Permissions", "Two start-screen buttons grant Accessibility (click and type) and Screen Recording (read the screen)"]
+      ],
+      downloads: [
+        ["Requires", "macOS 15 or later on Apple Silicon, plus Xcode or the Swift toolchain"],
+        ["Model server", "Any OpenAI-compatible endpoint, e.g. llama-server"]
+      ],
+      limits: [
+        "You give it full use of your Mac; keep the self-check on.",
+        "Text the model reads, like web pages and files, can try to steer it, so be careful what you point it at.",
+        "There's no prebuilt download yet; you build it from source."
+      ],
+      license: "MIT",
+      release: "source"
+    },
+    {
+      id: "scoreforge",
+      name: "ScoreForge",
+      repo: "scoreforge",
+      accent: "#fbbf24",
+      icon: "♪",
+      created: "2026-11-01",
+      kicker: "Audio to sheet music, with a full MIDI editor. No AI.",
+      summary: "Load a song, pull out its melody with classic signal processing, fix it in a piano roll, play it back and print a real score. Pure DSP from start to finish.",
+      stats: [["4", "pitch detectors"], ["8", "audio formats"], ["3", "export types"], ["0", "AI"]],
+      langs: { JavaScript: 46856, HTML: 4572, CSS: 3737 },
+      pipeline: [
+        ["Load", "mp3, wav, flac, ogg, m4a, aac, opus or webm."],
+        ["Clean up", "Vocal reduce (karaoke-style L−R subtract) or vocal isolate (center emphasis)."],
+        ["Transcribe", "Pull the dominant melody into MIDI with YIN, AMDF, Dynamic Wavelet or Autocorrelation."],
+        ["Edit", "Draw, erase, move and resize notes in a canvas piano roll; add tracks and swap instruments."],
+        ["Play", "Hear it through a built-in Tone.js synth, one instrument per track."],
+        ["Engrave", "Render sheet music with VexFlow, then export MIDI, MusicXML or a printed PDF."]
+      ],
+      features: [
+        ["Piano roll", "Tempo, time signature, snap, key and zoom are all adjustable"],
+        ["Keyboard", "Arrows nudge pitch and time, Shift+↑/↓ jumps octaves, Ctrl/Cmd+A selects all"],
+        ["Score", "Clef, key signature and time signature are configurable"],
+        ["MusicXML", "Hand-rolled export that loads in MuseScore, Finale, Sibelius, Dorico and Flat.io"],
+        ["MIDI", "Export via @tonejs/midi"],
+        ["Simple project model", "Tempo, beats per bar and tracks of notes with pitch, start, duration and velocity"]
+      ],
+      terminal: [
+        "$ npm install",
+        "$ npm start",
+        "$ npm run build:all   # AppImage, dmg and NSIS .exe"
+      ],
+      architecture: [
+        ["Transcription", "Monophonic pitch tracking, frame by frame"],
+        ["Playback", "Tone.js synth presets"],
+        ["Notation", "VexFlow"],
+        ["Shell", "Electron, packaged for Linux, macOS and Windows"]
+      ],
+      downloads: [
+        ["Linux", ".AppImage"],
+        ["macOS", ".app / .dmg"],
+        ["Windows", ".exe installer"]
+      ],
+      limits: [
+        "It assumes one dominant melody per frame; full band mixes drift to whatever is loudest.",
+        "Vocal reduction only works when the vocal is panned center, and it also removes kick, snare and bass.",
+        "No AI stem separation, by design.",
+        "What you do with transcriptions of copyrighted recordings is up to you."
+      ],
+      license: "MIT",
+      release: "v0.1.0"
     },
     {
       id: "apivis",
@@ -351,6 +688,116 @@ window.SITE = {
       ],
       license: "See repo",
       release: "v0.2.0"
+    },
+    {
+      id: "vphoneduo",
+      name: "vphone Duo",
+      repo: "vphone-duo",
+      accent: "#cbd5e1",
+      icon: "▯▯",
+      created: "2026-10-30",
+      fork: true,
+      kicker: "A virtual foldable iPhone Duo on an Apple Silicon Mac",
+      summary: "This fork of Lakr233's vphone-cli adds the iPhone Duo: it boots iOS 27.2 for Apple's foldable and shows it as a 3D phone you fold with a slider while iOS reads the exact hinge angle. Everything else is vphone-cli, under its MIT license.",
+      stats: [["iOS 27.2", "guest"], ["2", "finishes"], ["64 GB", "virtual disk"], ["2.14.2", "Duo bundle"]],
+      langs: { Swift: 9240930, C: 1361308, "Objective-C": 1049681, Shell: 198836, Python: 41018, Makefile: 31982, "Objective-C++": 9039 },
+      pipeline: [
+        ["Get Launchpad", "Install vphone-launchpad 2.13 or newer from vphone-cli's releases."],
+        ["Prepare the Mac", "Apple Silicon on macOS 15+, with SIP's debugging restrictions relaxed in Recovery."],
+        ["Download the Duo", "Grab the VPhone-Duo bundle from this repo's Releases and unzip it."],
+        ["Add the bundle", "Install it into Launchpad with vphone-launchpad-cli."],
+        ["Create the Duo", "It downloads the iPhone Duo firmware and restores iOS 27.2."],
+        ["Fold it", "Fold with a slider, click its screens and keys from any side, in Star White or Space Black."]
+      ],
+      features: [
+        ["Hinge angle", "iOS reads the exact angle you set with the slider"],
+        ["3D phone", "Click the screens and keys from any side"],
+        ["Graphical window", "Use the virtual iPhone's screen on your Mac, with screenshots and recordings (from vphone-cli)"],
+        ["Backup & cloning", "Export, import and clone VMs (from vphone-cli)"],
+        ["Automation API", "Optional local HTTP and WebSocket interface (from vphone-cli)"],
+        ["Open boot ROMs", "New VMs start from OpenAVB and OpenSEP, so nothing Apple wrote runs before iBoot and SEPOS (from vphone-cli)"]
+      ],
+      terminal: [
+        "# in macOS Recovery, then restart",
+        "$ csrutil enable --without debug",
+        "$ csrutil allow-research-guests enable",
+        "$ /Applications/vphone-launchpad.app/Contents/MacOS/vphone-launchpad-cli bundle install-local ~/Downloads/VPhone.bundle --keep-default"
+      ],
+      architecture: [
+        ["Documents/Guides/iphone-duo.md", "The iPhone Duo guide"],
+        ["VPhone.bundle", "The bundle Launchpad runs; the Duo ships as one"],
+        ["~/.vphone/", "Where VMs are stored"],
+        ["Upstream", "vphone-cli by Lakr233: Virtualization.framework + PCC research VMs"]
+      ],
+      downloads: [
+        ["Bundle", "VPhone-Duo-2.14.2.zip"],
+        ["Host", "A physical Apple Silicon Mac on macOS 15+ (not a macOS VM)"],
+        ["Space", "64 GB per VM by default, plus firmware"]
+      ],
+      limits: [
+        "It's a bundle for vphone-launchpad, not a standalone app.",
+        "It needs SIP's debugging restrictions relaxed (SIP stays on).",
+        "Restoring fetches signing tickets online.",
+        "Most of the code is upstream vphone-cli, so it's left out of this page's language totals."
+      ],
+      license: "MIT",
+      release: "duo-2.14.2"
+    },
+    {
+      id: "usbkit",
+      name: "usb-overclock-kit",
+      repo: "usb-overclock-kit",
+      accent: "#f87171",
+      icon: "⚡",
+      created: "2026-11-01",
+      kicker: "Recon, backup, benchmarking and honest tuning for USB flash drives",
+      summary: "A USB flash controller has no clock multiplier. The real knobs, like over-provisioning, pSLC cache, link mode and thermal setpoint, live in the vendor MPTool INI. This kit generates those INIs for a workload, with a revert path.",
+      stats: [["5", "profiles"], ["7", "docs chapters"], ["+400%", "4K random write"], ["v0.1.0", "release"]],
+      langs: { Python: 35030, Shell: 9848 },
+      pipeline: [
+        ["Recon", "recon.py enumerates USB drives and maps VID:PID to a controller family."],
+        ["Back up", "bench.sh backs up the drive before anything destructive."],
+        ["Benchmark", "Measure stock performance."],
+        ["Generate", "tune.py writes an INI overlay with just the lines to change, plus a host script."],
+        ["Flash", "Merge the overlay into your MPTool base INI and flash it with the vendor tool on Windows."],
+        ["Revert", "tune.py revert prints the procedure to restore the stock firmware and INI."]
+      ],
+      features: [
+        ["swap-aggressive", "Tuned for a Linux swap workload"],
+        ["balanced", "Fixes the stock defaults"],
+        ["undervolt-cool", "Low power, low heat"],
+        ["endurance", "Maximum lifetime"],
+        ["max-throughput", "Peak numbers for benchmarks"],
+        ["Controllers", "Phison, Silicon Motion, Alcor and Innostor families"],
+        ["Teardown docs", "Opening the drive, chip ID, safety and bricking modes"],
+        ["Honest numbers", "Nobody doubles a drive's peak sequential read by firmware tuning"]
+      ],
+      terminal: [
+        "$ ./tools/recon.py",
+        "$ ./tools/bench.sh backup /dev/diskN ~/usbdrive-backup.img",
+        "$ ./tools/tune.py apply --vid-pid 13fe:5500 --profile swap-aggressive",
+        "$ ./tools/tune.py list-profiles"
+      ],
+      architecture: [
+        ["tools/recon.py", "Enumerate USB drives and controllers"],
+        ["tools/bench.sh", "Backup, restore and benchmark"],
+        ["tools/tune.py", "Generate INI overlays and host scripts, or a revert runbook"],
+        ["data/controllers.json", "VID:PID → controller family lookup"],
+        ["data/profiles/", "The five workload profiles"],
+        ["docs/", "From opening the drive to the Phison MPALL PS2309 workflow"]
+      ],
+      downloads: [
+        ["macOS & Linux", "Recon, backup, benchmark and INI generation"],
+        ["Windows", "INI generation, plus the vendor MPTool for the actual flash"]
+      ],
+      limits: [
+        "The firmware flash step needs closed-source Windows vendor tools; there's no macOS or Linux equivalent.",
+        "Tuning trades capacity for speed: a 64 GB stick may end up at 30–50 GB.",
+        "Peak sequential read stays the same; the gains are in random and sustained writes.",
+        "Always back up first: flashing can brick a drive."
+      ],
+      license: "MIT",
+      release: "v0.1.0"
     },
     {
       id: "archaeologist",
