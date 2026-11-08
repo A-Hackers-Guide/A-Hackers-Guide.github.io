@@ -1009,6 +1009,157 @@ window.SITE = {
       release: "new"
     },
     {
+      id: "nin64",
+      name: "Nin64",
+      repo: "Nin64",
+      accent: "#ff4d4d",
+      icon: "◓",
+      created: "2026-11-08",
+      live: "https://a-hackers-guide.github.io/Nin64/",
+      kicker: "Walk into classic console home menus and play your own ROMs in the browser",
+      summary: "A fancy in-browser boot picker with hand-built recreations of classic Nintendo console home menus. When your machine is powerful enough, it plays your own ROMs inside them. Everything runs locally: no uploads, no server, no accounts.",
+      stats: [["9", "consoles"], ["7", "playable in-browser"], ["4", "hardware tiers"], ["0", "Nintendo assets"]],
+      langs: { JavaScript: 122527, CSS: 69010, HTML: 42696 },
+      pipeline: [
+        ["Benchmark", "A client-side check scores your GPU, WebAssembly features (SIMD, threads, bulk memory) and raw CPU speed."],
+        ["Unlock", "Each console needs a tier: Light (NES, SNES), Moderate (N64), Demanding (GameCube, Wii), Extreme (Wii U, Switch)."],
+        ["Pick", "Choose a console card from the boot picker."],
+        ["Walk in", "Land in a hand-built HTML/CSS/JS recreation of that console's home menu."],
+        ["Add ROMs", "Your own ROM files go into a local library in your browser's IndexedDB."],
+        ["Play", "EmulatorJS runs a libretro core in WebAssembly right in the tab."]
+      ],
+      features: [
+        ["Menus", "Wii, Wii U, Switch, GameCube, N64, NES and SNES, plus Game Boy and Game Boy Advance"],
+        ["Cores", "fceumm (NES), snes9x, mupen64plus_next (N64), dolphin (GameCube and Wii), gambatte (GB), mgba (GBA)"],
+        ["Emulator controls", "Save and load states, screenshots, screen recording, cheats, gamepads and fullscreen"],
+        ["Honest gating", "A card only unlocks when your machine clears its tier"],
+        ["Local only", "ROMs stay in your browser's storage; nothing is uploaded"]
+      ],
+      terminal: [
+        "# open the live site, or serve it yourself",
+        "$ python3 -m http.server 8000"
+      ],
+      architecture: [
+        ["assets/js/hardware.js", "Client-only benchmark and tier gating"],
+        ["assets/js/emulator.js", "A thin wrapper around EmulatorJS, loaded from its CDN at runtime"],
+        ["assets/js/roms.js", "Your local ROM library in IndexedDB"],
+        ["assets/js/sound.js", "Menu sounds"],
+        ["consoles/", "One folder per console: wii, wiiu, switch, gamecube, n64, nes, snes, gb, gba"]
+      ],
+      downloads: [
+        ["Live", "a-hackers-guide.github.io/Nin64"],
+        ["You bring", "Your own legally-owned ROM files"]
+      ],
+      limits: [
+        "Wii U and Switch have no practical browser cores, so they show a friendly message instead.",
+        "GameCube and Wii need a Demanding-tier machine to unlock.",
+        "It ships no Nintendo code, art, firmware, BIOS or ROMs."
+      ],
+      license: "See repo",
+      release: "live"
+    },
+    {
+      id: "son64",
+      name: "Son64",
+      repo: "Son64",
+      accent: "#3b82f6",
+      icon: "△",
+      created: "2026-11-08",
+      kicker: "A PlayStation-era-inspired boot picker with seven original console menus",
+      summary: "Pick a generation and drop into a full-screen HTML recreation of that era's menu style, with animated backdrops, synthesized sound, and keyboard, mouse and touch navigation. Every visual and sound is original.",
+      stats: [["7", "console menus"], ["0", "sampled sounds"], ["1", "file per export"], ["0", "Sony assets"]],
+      langs: { HTML: 94410, JavaScript: 3763, CSS: 3266 },
+      pipeline: [
+        ["Carousel", "Seven cards, each painting its own era-themed canvas so you see what you're choosing."],
+        ["Detect", "CPU cores, device memory, WebAssembly, WebGL/WebGL2, renderer, screen and pixel ratio."],
+        ["Verdict", "Each card says whether its UI will run smoothly and whether in-browser games are possible for that era."],
+        ["Boot", "Enter boots a console: Son 1 through Son 5, plus Son Portable and Son Vita."],
+        ["Navigate", "Arrows, Enter, Esc, M to mute, and C for Son 5's Control Center."],
+        ["Export", "Settings downloads any console as a single HTML file that runs without a server."]
+      ],
+      features: [
+        ["Son 1", "1994-era CRT look with memory cards, config and a scanline overlay"],
+        ["Son 2", "Floating wireframe cubes and a 4×2 app grid"],
+        ["Son Portable", "A horizontal category list with per-category item strips"],
+        ["Son 3", "An animated wave backdrop and a column-of-columns layout"],
+        ["Son Vita", "A pastel aurora and two pages of color bubbles"],
+        ["Son 4 & 5", "A function rail over a blue sweep; a dark particle sheen with a slide-up Control Center"],
+        ["Synth audio", "Ticks, confirms, backs and startup chimes, all generated with Web Audio"],
+        ["Uploader", "Every console reads a ROM or disc image into memory only; nothing is sent anywhere"]
+      ],
+      terminal: [
+        "# a static site: open index.html, or",
+        "$ python3 -m http.server 8000"
+      ],
+      architecture: [
+        ["index.html", "The boot picker"],
+        ["consoles/<name>/index.html", "Each console as its own self-contained page"],
+        ["settings/index.html", "Settings and single-file export"],
+        [".github/workflows/pages.yml", "Deploys GitHub Pages on every push to main"]
+      ],
+      downloads: [
+        ["Run it", "Any static server or GitHub Pages"]
+      ],
+      limits: [
+        "No emulation core is bundled; the uploaders are shells.",
+        "In-browser PS3, PS4 and PS5 emulation doesn't exist, and every uploader says so.",
+        "Device memory only shows up in browsers that expose it.",
+        "It's an original interpretation per era, not Sony's firmware or assets."
+      ],
+      license: "MIT",
+      release: "new"
+    },
+    {
+      id: "mic64",
+      name: "Mic64",
+      repo: "Mic64",
+      accent: "#22c55e",
+      icon: "✕",
+      created: "2026-11-08",
+      kicker: "A multi-era console dashboard homage with seven original dashboards",
+      summary: "A boot picker that drops you into seven fan-made dashboards from 2001 to 2020, each hand-written in plain HTML, CSS, SVG and the Web Audio API. Not an emulator, not firmware, not a game.",
+      stats: [["7", "eras"], ["3", "verdict chips"], ["2001→2020", "timeline"], ["0", "Microsoft assets"]],
+      langs: { HTML: 149110, JavaScript: 23212, CSS: 12671 },
+      pipeline: [
+        ["Power on", "A pre-boot splash with a procedural power-on sound."],
+        ["Detect", "Cores, memory, WebGL and a synthetic benchmark."],
+        ["Verdicts", "Each era tile shows UI / APPS / EMU chips for what your browser can handle."],
+        ["Pick an era", "Arrow-key through seven tiles and boot one with an original spin-up sound."],
+        ["Use it", "Menus, hover sounds, tab transitions, and Media, Settings, Store and Friends apps."],
+        ["Export", "Download any era as one HTML file from the picker's Settings."]
+      ],
+      features: [
+        ["Era I (2001)", "An original green blade wheel"],
+        ["Era II (2005)", "HD tabs and a panorama"],
+        ["Era II Slim (2010)", "Colored tiles"],
+        ["Era III (2013)", "Wide tiles and a snap view"],
+        ["Era III Slim (2016)", "A light theme and a 4K HDR media mode"],
+        ["Era IV (2020)", "A compact green ribbon-and-resume dashboard, and a flagship hero-tile dashboard"],
+        ["Media app", "Opens a local file in an audio or video element"],
+        ["ROM drop", "Shows a themed boot-screen simulation only; nothing is uploaded or emulated"]
+      ],
+      terminal: [
+        "$ python3 -m http.server 8000",
+        "# then open http://localhost:8000"
+      ],
+      architecture: [
+        ["index.html", "The picker, hardware detection and Settings"],
+        ["consoles/*.html", "Seven self-contained dashboard files"],
+        ["Audio", "Every sound is procedural, made with Web Audio"]
+      ],
+      downloads: [
+        ["Run it", "Any static server; double-clicking index.html works in some browsers"]
+      ],
+      limits: [
+        "There's no real emulation: in-browser emulation of even the earliest era would be a multi-year project.",
+        "Store and Friends are simulated.",
+        "Some browsers block local-file navigation between folders, so a tiny static server works better.",
+        "It's a non-affiliated fan homage with no Microsoft code, firmware, games, graphics, fonts or audio."
+      ],
+      license: "MIT",
+      release: "new"
+    },
+    {
       id: "hearth",
       name: "HearthOS",
       repo: "palpod-os",

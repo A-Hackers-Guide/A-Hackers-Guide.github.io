@@ -183,6 +183,7 @@
             <a class="btn primary magnetic" href="${gh(r)}" target="_blank" rel="noopener"><span>View repo ↗</span></a>
             ${r.live ? `<a class="btn ghost magnetic" href="${r.live}" target="_blank" rel="noopener"><span>Open live ↗</span></a>` : ""}
             <button class="btn ghost magnetic" data-open="${r.id}"><span>Deep dive</span></button>
+            <button class="btn ghost magnetic share-btn" data-share="${r.id}" aria-label="Copy a link to ${esc(r.name)}"><span>🔗 Link</span></button>
           </div>
           <div class="ch-mini stagger">${r.stats.map(([b, s]) => `<div><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("")}</div>
         </aside>
@@ -276,6 +277,9 @@
     try { sessionStorage.setItem("booted", "1"); } catch (e) {}
     setTimeout(glitchOnce, 1400);
     startTyping();
+    // chapters are built by this script, so a shared #link has to be followed by hand
+    const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target) setTimeout(() => target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }), 300);
   };
   // finishBoot runs after the rest of this script has set everything up
   if (reduce || seenBoot) { bootLog.innerHTML = bootLines.join("\n"); setTimeout(finishBoot, 0); }
@@ -668,6 +672,15 @@
   document.addEventListener("click", (e) => {
     const o = e.target.closest("[data-open]"); if (o) { openModal(o.dataset.open); return; }
     const g = e.target.closest("[data-goto]"); if (g) { closeModal(); go("#" + g.dataset.goto); return; }
+    const sh = e.target.closest("[data-share]");
+    if (sh) {
+      const r = S.repos.find((x) => x.id === sh.dataset.share);
+      const url = `${location.origin}${location.pathname}#${r.id}`;
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: r.name, text: r.kicker, url }).catch(() => {});
+      else navigator.clipboard?.writeText(url).then(() => toast(`Link to ${r.name} copied`), () => toast(url));
+      sh.animate([{ transform: "scale(1)" }, { transform: "scale(.9)" }, { transform: "scale(1.06)" }, { transform: "scale(1)" }], { duration: 420 });
+      return;
+    }
     const c = e.target.closest("[data-copy]");
     if (c) { navigator.clipboard?.writeText(c.dataset.copy).then(() => toast("Copied to clipboard"), () => toast("Couldn't copy")); }
   });
@@ -998,7 +1011,7 @@
     "Privacy & security": ["freemessenger", "numberlock", "archaeologist", "quoder"],
     "AI": ["quoder", "hearth", "sys1", "questclassic"],
     "Cloud & home": ["sys1", "hearth", "freemessenger"],
-    "Games & fun": ["wiithemer", "questclassic", "prism", "scoreforge"]
+    "Games & fun": ["wiithemer", "questclassic", "prism", "scoreforge", "nin64", "son64", "mic64"]
   };
   const catsOf = (id) => Object.keys(CATS).filter((c) => CATS[c].includes(id));
   const exGrid = $("#ex-grid"), exChips = $("#ex-chips"), exSearch = $("#ex-search");
